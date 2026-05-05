@@ -143,6 +143,61 @@
       max-height: 0;
     }
 
+    .favorites-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .league-selector {
+      background: #fffef9;
+      border: 2.5px solid #ddd5c5;
+      border-left-width: 7px;
+      border-left-color: #1a6ef5;
+      border-radius: 11px;
+      padding: 8px 12px;
+      font-family: 'Nunito Sans', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .team-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .team-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #fffef9;
+      border: 2px solid #ddd5c5;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .team-item:hover {
+      background: #f5f3f0;
+    }
+    .team-item.selected {
+      background: #dce9ff;
+      border-color: #1a6ef5;
+    }
+
+    .team-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #1a6ef5;
+    }
+
     .card-wrap {
       position: relative;
       margin-bottom: 14px;
@@ -169,7 +224,6 @@
       border-radius: 16px;
       padding: 12px 14px;
       transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-      cursor: pointer;
     }
     .card:hover {
       transform: translate(-2px, -2px);
@@ -180,15 +234,7 @@
       background: #fff5f7;
     }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
     .card-matchup {
-      flex: 1;
       font-size: 14px;
       font-weight: 700;
     }
@@ -228,24 +274,6 @@
       font-weight: 900;
     }
 
-    .card-inning {
-      font-size: 10px;
-      color: #a09080;
-      margin-top: 6px;
-    }
-
-    .favorite-btn {
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      padding: 4px;
-      transition: transform 0.15s;
-    }
-    .favorite-btn:hover {
-      transform: scale(1.2);
-    }
-
     .empty-state {
       text-align: center;
       padding: 20px;
@@ -254,25 +282,10 @@
     }
 
     @media (max-width: 480px) {
-      .main {
-        padding: 16px;
-      }
-
-      .logo {
-        font-size: 24px;
-      }
-
-      .card {
-        padding: 10px 12px;
-      }
-
-      .team-name {
-        font-size: 12px;
-      }
-
-      .team-score {
-        font-size: 14px;
-      }
+      .main { padding: 16px; }
+      .logo { font-size: 24px; }
+      .favorites-grid { grid-template-columns: 1fr; }
+      .team-list { max-height: 200px; }
     }
   </style>
 </head>
@@ -289,31 +302,27 @@
   <div class="main">
     <div class="section">
       <div class="section-header" data-section="favorites">
-        <div class="section-title">
-          <span>⭐ Favorites</span>
-        </div>
+        <div class="section-title">⭐ My Teams</div>
         <div class="section-toggle"></div>
       </div>
-      <div class="section-content" id="favorites-content">
-        <div class="empty-state">No favorites yet. Star a team to add it here.</div>
+      <div class="section-content" id="favorites-control">
+        <div class="favorites-grid" id="leagueSelectGrid"></div>
+        <div id="team-picker"></div>
+        <div id="favorites-display"></div>
       </div>
     </div>
 
     <div class="section">
       <div class="section-header" data-section="live">
-        <div class="section-title">
-          <span>🔴 Live Now</span>
-        </div>
+        <div class="section-title">🔴 Live Now</div>
         <div class="section-toggle"></div>
       </div>
-      <div class="section-content" id="live-content">
-        <div class="empty-state">No live games right now.</div>
-      </div>
+      <div class="section-content" id="live-content"></div>
     </div>
 
     <div class="section" data-league="MLB">
       <div class="section-header" data-section="mlb">
-        <div class="section-title"><span>MLB</span></div>
+        <div class="section-title">MLB</div>
         <div class="section-toggle"></div>
       </div>
       <div class="section-content" id="mlb-content"></div>
@@ -321,7 +330,7 @@
 
     <div class="section" data-league="NPB">
       <div class="section-header" data-section="npb">
-        <div class="section-title"><span>NPB</span></div>
+        <div class="section-title">NPB</div>
         <div class="section-toggle"></div>
       </div>
       <div class="section-content" id="npb-content"></div>
@@ -329,7 +338,7 @@
 
     <div class="section" data-league="KBO">
       <div class="section-header" data-section="kbo">
-        <div class="section-title"><span>KBO</span></div>
+        <div class="section-title">KBO</div>
         <div class="section-toggle"></div>
       </div>
       <div class="section-content" id="kbo-content"></div>
@@ -337,7 +346,7 @@
 
     <div class="section" data-league="LMB">
       <div class="section-header" data-section="lmb">
-        <div class="section-title"><span>LMB</span></div>
+        <div class="section-title">LMB</div>
         <div class="section-toggle"></div>
       </div>
       <div class="section-content" id="lmb-content"></div>
@@ -345,7 +354,7 @@
 
     <div class="section" data-league="AAA">
       <div class="section-header" data-section="aaa">
-        <div class="section-title"><span>AAA</span></div>
+        <div class="section-title">AAA</div>
         <div class="section-toggle"></div>
       </div>
       <div class="section-content" id="aaa-content"></div>
@@ -357,8 +366,35 @@
     const CACHE_TTL = 45000;
     let allGames = {};
     let favorites = new Set(JSON.parse(localStorage.getItem('baseball_favorites') || '[]'));
+    let selectedLeague = 'MLB';
 
-    // Sample data
+    const leagueTeams = {
+      MLB: [
+        'Baltimore Orioles', 'New York Yankees', 'Boston Red Sox', 'Toronto Blue Jays', 'Tampa Bay Rays',
+        'New York Mets', 'Philadelphia Phillies', 'Atlanta Braves', 'Washington Nationals', 'Miami Marlins',
+        'Chicago White Sox', 'Cleveland Guardians', 'Detroit Tigers', 'Kansas City Royals', 'Minnesota Twins',
+        'Houston Astros', 'Texas Rangers', 'Oakland Athletics', 'Seattle Mariners', 'Los Angeles Angels',
+        'Los Angeles Dodgers', 'San Francisco Giants', 'San Diego Padres', 'Colorado Rockies', 'Arizona Diamondbacks'
+      ],
+      NPB: [
+        'Yomiuri Giants', 'Hanshin Tigers', 'Chunichi Dragons', 'Yokohama BayStars', 'Yakult Swallows', 'Hiroshima Carp',
+        'Orix Buffaloes', 'Seibu Lions', 'Fukuoka SoftBank Hawks', 'Chiba Lotte Marines', 'Tohoku Rakuten Eagles', 'Hokkaido Nippon-Ham Fighters'
+      ],
+      KBO: [
+        'LG Twins', 'Kia Tigers', 'Samsung Lions', 'Hanwha Eagles', 'Doosan Bears',
+        'NC Dinos', 'SSG Landers', 'KT Wiz', 'Lotte Giants'
+      ],
+      LMB: [
+        'Diablos Rojos', 'Sultanes de Monterrey', 'Bravos de León', 'Pericos de Puebla', 'Toros de Durango',
+        'Generales de Durango', 'Rieleros de Aguascalientes', 'Industriales de Monterrey'
+      ],
+      AAA: [
+        'Columbus Clippers', 'Toledo Mud Hens', 'Omaha Storm Chasers', 'Las Vegas Aviators', 'Buffalo Bisons',
+        'Durham Bulls', 'Norfolk Tides', 'Louisville Bats', 'Indianapolis Indians', 'Charlotte Knights'
+      ]
+    };
+
+    // Sample data (will be replaced by real API data)
     const sampleGames = {
       mlb: [
         { league: 'MLB', id: 'mlb1', homeTeam: 'Baltimore Orioles', awayTeam: 'New York Yankees', homeScore: 4, awayScore: 2, status: 'STATUS_IN_PROGRESS', inning: 6 },
@@ -382,7 +418,7 @@
       ]
     };
 
-    // Fetch functions
+    // Fetch functions - using sample data for now (ready for real APIs)
     async function fetchMLB() {
       const now = Date.now();
       if (API_CACHE['mlb'] && now - API_CACHE['mlb'].time < CACHE_TTL) return API_CACHE['mlb'].data;
@@ -426,10 +462,6 @@
     // Render card
     function renderCard(game) {
       const isLive = game.status === 'STATUS_IN_PROGRESS';
-      const homeKey = `${game.league}-${game.homeTeam}`;
-      const awayKey = `${game.league}-${game.awayTeam}`;
-      const isFav = favorites.has(homeKey) || favorites.has(awayKey);
-      
       const statusText = isLive ? `Live - Inning ${game.inning}` : game.status === 'STATUS_FINAL' ? 'Final' : 'Upcoming';
 
       const wrap = document.createElement('div');
@@ -442,52 +474,97 @@
       const card = document.createElement('div');
       card.className = `card ${isLive ? 'live' : ''}`;
       card.innerHTML = `
-        <div class="card-header">
-          <div class="card-matchup">
-            <div class="card-team">
-              <span class="team-name">${game.awayTeam}</span>
-              <span class="team-score">${game.awayScore}</span>
-            </div>
-            <div class="card-team">
-              <span class="team-name">${game.homeTeam}</span>
-              <span class="team-score">${game.homeScore}</span>
-            </div>
+        <div class="card-matchup">
+          <div class="card-team">
+            <span class="team-name">${game.awayTeam}</span>
+            <span class="team-score">${game.awayScore}</span>
           </div>
-          <button class="favorite-btn" data-home="${homeKey}" data-away="${awayKey}">${isFav ? '⭐' : '☆'}</button>
+          <div class="card-team">
+            <span class="team-name">${game.homeTeam}</span>
+            <span class="team-score">${game.homeScore}</span>
+          </div>
         </div>
         <div class="card-status">${statusText}</div>
       `;
-
-      card.querySelector('.favorite-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const hk = e.target.dataset.home;
-        const ak = e.target.dataset.away;
-        if (favorites.has(hk)) {
-          favorites.delete(hk);
-        } else if (favorites.has(ak)) {
-          favorites.delete(ak);
-        } else {
-          favorites.add(hk);
-        }
-        localStorage.setItem('baseball_favorites', JSON.stringify(Array.from(favorites)));
-        renderAll();
-      });
 
       wrap.appendChild(card);
       return wrap;
     }
 
-    // Render sections
-    function updateFavorites() {
-      const container = document.getElementById('favorites-content');
-      container.innerHTML = '';
-      const allLive = Object.values(allGames).flat().filter(g => g.status !== 'STATUS_SCHEDULED');
-      const favGames = allLive.filter(g => favorites.has(`${g.league}-${g.homeTeam}`) || favorites.has(`${g.league}-${g.awayTeam}`));
+    // Render team picker
+    function renderTeamPicker() {
+      const grid = document.getElementById('leagueSelectGrid');
+      grid.innerHTML = '';
       
-      if (favGames.length === 0) {
-        container.innerHTML = '<div class="empty-state">No favorites yet. Star a team to add it here.</div>';
-        return;
-      }
+      Object.keys(leagueTeams).forEach(league => {
+        const btn = document.createElement('button');
+        btn.className = `league-selector ${league === selectedLeague ? 'selected' : ''}`;
+        btn.textContent = league;
+        btn.addEventListener('click', () => {
+          selectedLeague = league;
+          renderTeamPicker();
+          renderTeamList();
+        });
+        grid.appendChild(btn);
+      });
+
+      renderTeamList();
+    }
+
+    function renderTeamList() {
+      const picker = document.getElementById('team-picker');
+      picker.innerHTML = '';
+      
+      const list = document.createElement('div');
+      list.className = 'team-list';
+      
+      leagueTeams[selectedLeague].forEach(team => {
+        const item = document.createElement('label');
+        item.className = `team-item ${favorites.has(team) ? 'selected' : ''}`;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'team-checkbox';
+        checkbox.checked = favorites.has(team);
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            favorites.add(team);
+          } else {
+            favorites.delete(team);
+          }
+          localStorage.setItem('baseball_favorites', JSON.stringify(Array.from(favorites)));
+          renderTeamList();
+          updateFavorites();
+        });
+        
+        item.appendChild(checkbox);
+        item.appendChild(document.createTextNode(team));
+        list.appendChild(item);
+      });
+      
+      picker.appendChild(list);
+    }
+
+    // Update favorites display
+    function updateFavorites() {
+      const container = document.getElementById('favorites-display');
+      container.innerHTML = '';
+      
+      if (favorites.size === 0) return;
+
+      const allLive = Object.values(allGames).flat().filter(g => g.status !== 'STATUS_SCHEDULED');
+      const favGames = allLive.filter(g => favorites.has(g.homeTeam) || favorites.has(g.awayTeam));
+      
+      if (favGames.length === 0) return;
+      
+      const title = document.createElement('h3');
+      title.style.fontSize = '13px';
+      title.style.marginTop = '16px';
+      title.style.marginBottom = '12px';
+      title.style.fontWeight = '900';
+      title.textContent = `Games (${favGames.length})`;
+      container.appendChild(title);
+      
       favGames.forEach(g => container.appendChild(renderCard(g)));
     }
 
@@ -497,13 +574,13 @@
       const liveGames = Object.values(allGames).flat().filter(g => g.status === 'STATUS_IN_PROGRESS');
       
       if (liveGames.length === 0) {
-        container.innerHTML = '<div class="empty-state">No live games right now. Check back soon!</div>';
+        container.innerHTML = '<div class="empty-state">No live games right now.</div>';
         return;
       }
       liveGames.forEach(g => container.appendChild(renderCard(g)));
     }
 
-    function renderLeague(league, code) {
+    function renderLeague(code) {
       const container = document.getElementById(`${code}-content`);
       const games = allGames[code] || [];
       container.innerHTML = '';
@@ -526,11 +603,7 @@
       
       updateFavorites();
       updateLive();
-      renderLeague('MLB', 'mlb');
-      renderLeague('NPB', 'npb');
-      renderLeague('KBO', 'kbo');
-      renderLeague('LMB', 'lmb');
-      renderLeague('AAA', 'aaa');
+      ['mlb', 'npb', 'kbo', 'lmb', 'aaa'].forEach(code => renderLeague(code));
     }
 
     // Init shapes
@@ -544,7 +617,7 @@
         { cx: 30, cy: 900, r: 14, fill: '#8b1af5' }
       ];
       
-      shapes.forEach((s, i) => {
+      shapes.forEach(s => {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('class', 'ms');
         svg.setAttribute('style', `--r: ${Math.random() * 35}deg; top: ${s.cy}px; left: ${s.cx}px;`);
@@ -599,6 +672,7 @@
 
     // Init
     initShapes();
+    renderTeamPicker();
     renderAll();
   </script>
 </body>
