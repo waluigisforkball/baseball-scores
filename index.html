@@ -374,23 +374,43 @@ async function fetchAAA() {
 }
 
 async function fetchNPB() {
-  const url = 'https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4591';
-  logDebug('NPB', 'ok', `Fetching SportsDB`);
+  const url = `https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=${today()}&l=4591`;
+  logDebug('NPB', 'ok', `Fetching SportsDB for ${today()}`);
   try {
     const res = await fetch(url);
     logDebug('NPB', res.ok ? 'ok' : 'fail', `Response: ${res.status}`);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    const count = (data.results || []).length;
-    logDebug('NPB', count > 0 ? 'ok' : 'fail', `Got ${count} events`);
-    return (data.results || []).slice(0,20).map(e => ({
+    const events = data.events || [];
+    logDebug('NPB', events.length > 0 ? 'ok' : 'fail', `Got ${events.length} events today`);
+    
+    // Fallback to last events if no games today
+    if (events.length === 0) {
+      logDebug('NPB', 'ok', `No games today, fetching most recent`);
+      const fallbackRes = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4591');
+      const fallbackData = await fallbackRes.json();
+      const recent = fallbackData.results || [];
+      logDebug('NPB', recent.length > 0 ? 'ok' : 'fail', `Got ${recent.length} recent events`);
+      return recent.slice(0,10).map(e => ({
+        league:'NPB', id:e.idEvent,
+        homeTeam: e.strHomeTeam, awayTeam: e.strAwayTeam,
+        homeScore: parseInt(e.intHomeScore) || 0,
+        awayScore: parseInt(e.intAwayScore) || 0,
+        homeLogo: e.strHomeTeamBadge || null,
+        awayLogo: e.strAwayTeamBadge || null,
+        status: 'STATUS_FINAL',
+        inning: 9, startTime: ''
+      }));
+    }
+    
+    return events.slice(0,20).map(e => ({
       league:'NPB', id:e.idEvent,
       homeTeam: e.strHomeTeam, awayTeam: e.strAwayTeam,
       homeScore: parseInt(e.intHomeScore) || 0,
       awayScore: parseInt(e.intAwayScore) || 0,
       homeLogo: e.strHomeTeamBadge || null,
       awayLogo: e.strAwayTeamBadge || null,
-      status: 'STATUS_FINAL',
+      status: e.intHomeScore === null || e.intHomeScore === undefined ? 'STATUS_SCHEDULED' : 'STATUS_FINAL',
       inning: 9, startTime: ''
     }));
   } catch(e) {
@@ -400,23 +420,42 @@ async function fetchNPB() {
 }
 
 async function fetchKBO() {
-  const url = 'https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4830';
-  logDebug('KBO', 'ok', `Fetching SportsDB`);
+  const url = `https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=${today()}&l=4830`;
+  logDebug('KBO', 'ok', `Fetching SportsDB for ${today()}`);
   try {
     const res = await fetch(url);
     logDebug('KBO', res.ok ? 'ok' : 'fail', `Response: ${res.status}`);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    const count = (data.results || []).length;
-    logDebug('KBO', count > 0 ? 'ok' : 'fail', `Got ${count} events`);
-    return (data.results || []).slice(0,20).map(e => ({
+    const events = data.events || [];
+    logDebug('KBO', events.length > 0 ? 'ok' : 'fail', `Got ${events.length} events today`);
+    
+    if (events.length === 0) {
+      logDebug('KBO', 'ok', `No games today, fetching most recent`);
+      const fallbackRes = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4830');
+      const fallbackData = await fallbackRes.json();
+      const recent = fallbackData.results || [];
+      logDebug('KBO', recent.length > 0 ? 'ok' : 'fail', `Got ${recent.length} recent events`);
+      return recent.slice(0,10).map(e => ({
+        league:'KBO', id:e.idEvent,
+        homeTeam: e.strHomeTeam, awayTeam: e.strAwayTeam,
+        homeScore: parseInt(e.intHomeScore) || 0,
+        awayScore: parseInt(e.intAwayScore) || 0,
+        homeLogo: e.strHomeTeamBadge || null,
+        awayLogo: e.strAwayTeamBadge || null,
+        status: 'STATUS_FINAL',
+        inning: 9, startTime: ''
+      }));
+    }
+    
+    return events.slice(0,20).map(e => ({
       league:'KBO', id:e.idEvent,
       homeTeam: e.strHomeTeam, awayTeam: e.strAwayTeam,
       homeScore: parseInt(e.intHomeScore) || 0,
       awayScore: parseInt(e.intAwayScore) || 0,
       homeLogo: e.strHomeTeamBadge || null,
       awayLogo: e.strAwayTeamBadge || null,
-      status: 'STATUS_FINAL',
+      status: e.intHomeScore === null || e.intHomeScore === undefined ? 'STATUS_SCHEDULED' : 'STATUS_FINAL',
       inning: 9, startTime: ''
     }));
   } catch(e) {
