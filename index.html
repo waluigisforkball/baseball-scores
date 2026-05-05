@@ -542,7 +542,7 @@
       window.addEventListener('scroll', checkShapes, { passive: true });
     }
 
-    // ESPN MLB API
+    // MLB via Sofascore
     async function fetchMLB() {
       const now = Date.now();
       if (API_CACHE['mlb'] && now - API_CACHE['mlb'].time < CACHE_TTL) {
@@ -550,32 +550,29 @@
       }
 
       try {
-        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard');
+        const response = await fetch('https://api.sofascore.com/api/v1/sport/baseball/events/today?lang=en');
         const data = await response.json();
         
-        const games = (data.events || []).map(event => {
-          const comp = event.competitions[0];
-          const statusMap = {
-            'STATUS_SCHEDULED': 'STATUS_SCHEDULED',
-            'STATUS_IN_PROGRESS': 'STATUS_IN_PROGRESS',
-            'STATUS_FINAL': 'STATUS_FINAL',
-            'STATUS_FINAL_OT': 'STATUS_FINAL'
-          };
-          
-          return {
-            league: 'MLB',
-            id: event.id,
-            homeTeam: comp.home.team.displayName,
-            awayTeam: comp.away.team.displayName,
-            homeScore: comp.home.score || 0,
-            awayScore: comp.away.score || 0,
-            status: statusMap[comp.status.type] || comp.status.type,
-            statusDetail: comp.status.detail || '',
-            inning: comp.inning || comp.period || 0,
-            timestamp: event.date
-          };
-        });
-        
+        // Filter for MLB (tournament ID 12401)
+        let games = [];
+        if (data.events) {
+          games = data.events
+            .filter(e => e.tournament && e.tournament.id === 12401)
+            .map(event => {
+              const status = event.status === 'inprogress' ? 'STATUS_IN_PROGRESS' : event.status === 'finished' ? 'STATUS_FINAL' : 'STATUS_SCHEDULED';
+              return {
+                league: 'MLB',
+                id: event.id,
+                homeTeam: event.homeTeam.name,
+                awayTeam: event.awayTeam.name,
+                homeScore: event.homeScore.current || 0,
+                awayScore: event.awayScore.current || 0,
+                status: status,
+                inning: event.currentPeriod || 0,
+                timestamp: new Date(event.startTimestamp * 1000).toISOString()
+              };
+            });
+        }
         API_CACHE['mlb'] = { time: now, data: games };
         return games;
       } catch (e) {
@@ -584,7 +581,7 @@
       }
     }
 
-    // NPB via SportsDB
+    // NPB via Sofascore
     async function fetchNPB() {
       const now = Date.now();
       if (API_CACHE['npb'] && now - API_CACHE['npb'].time < CACHE_TTL) {
@@ -592,26 +589,28 @@
       }
 
       try {
-        const today = new Date().toISOString().split('T')[0];
-        const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4591`);
+        const response = await fetch('https://api.sofascore.com/api/v1/sport/baseball/events/today?lang=en');
         const data = await response.json();
         
+        // Filter for NPB (tournament ID 11200)
         let games = [];
-        if (data.results) {
-          games = data.results.slice(0, 10).map(event => {
-            const status = event.intStatus ? (event.intStatus === '3' ? 'STATUS_IN_PROGRESS' : event.intStatus === '4' ? 'STATUS_FINAL' : 'STATUS_SCHEDULED') : 'STATUS_FINAL';
-            return {
-              league: 'NPB',
-              id: event.idEvent,
-              homeTeam: event.strHomeTeam,
-              awayTeam: event.strAwayTeam,
-              homeScore: parseInt(event.intHomeScore) || 0,
-              awayScore: parseInt(event.intAwayScore) || 0,
-              status: status,
-              inning: 9,
-              timestamp: event.dateEvent
-            };
-          });
+        if (data.events) {
+          games = data.events
+            .filter(e => e.tournament && e.tournament.id === 11200)
+            .map(event => {
+              const status = event.status === 'inprogress' ? 'STATUS_IN_PROGRESS' : event.status === 'finished' ? 'STATUS_FINAL' : 'STATUS_SCHEDULED';
+              return {
+                league: 'NPB',
+                id: event.id,
+                homeTeam: event.homeTeam.name,
+                awayTeam: event.awayTeam.name,
+                homeScore: event.homeScore.current || 0,
+                awayScore: event.awayScore.current || 0,
+                status: status,
+                inning: event.currentPeriod || 0,
+                timestamp: new Date(event.startTimestamp * 1000).toISOString()
+              };
+            });
         }
         API_CACHE['npb'] = { time: now, data: games };
         return games;
