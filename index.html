@@ -246,24 +246,6 @@
       transform: scale(1.2);
     }
 
-    .loading {
-      text-align: center;
-      padding: 20px;
-      color: #5a5040;
-      font-size: 14px;
-    }
-
-    .error {
-      background: #ffdde3;
-      border: 2px solid #e8234a;
-      border-radius: 11px;
-      padding: 12px;
-      margin-bottom: 16px;
-      color: #e8234a;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
     .empty-state {
       text-align: center;
       padding: 20px;
@@ -305,8 +287,6 @@
   </div>
 
   <div class="main">
-    <div id="errorContainer"></div>
-
     <div class="section">
       <div class="section-header" data-section="favorites">
         <div class="section-title">
@@ -327,328 +307,130 @@
         <div class="section-toggle"></div>
       </div>
       <div class="section-content" id="live-content">
-        <div class="loading">Loading live games...</div>
+        <div class="empty-state">No live games right now.</div>
       </div>
     </div>
 
     <div class="section" data-league="MLB">
       <div class="section-header" data-section="mlb">
-        <div class="section-title">
-          <span>MLB</span>
-        </div>
+        <div class="section-title"><span>MLB</span></div>
         <div class="section-toggle"></div>
       </div>
-      <div class="section-content" id="mlb-content">
-        <div class="loading">Loading...</div>
-      </div>
+      <div class="section-content" id="mlb-content"></div>
     </div>
 
     <div class="section" data-league="NPB">
       <div class="section-header" data-section="npb">
-        <div class="section-title">
-          <span>NPB</span>
-        </div>
+        <div class="section-title"><span>NPB</span></div>
         <div class="section-toggle"></div>
       </div>
-      <div class="section-content" id="npb-content">
-        <div class="loading">Loading...</div>
-      </div>
+      <div class="section-content" id="npb-content"></div>
     </div>
 
     <div class="section" data-league="KBO">
       <div class="section-header" data-section="kbo">
-        <div class="section-title">
-          <span>KBO</span>
-        </div>
+        <div class="section-title"><span>KBO</span></div>
         <div class="section-toggle"></div>
       </div>
-      <div class="section-content" id="kbo-content">
-        <div class="loading">Loading...</div>
-      </div>
+      <div class="section-content" id="kbo-content"></div>
     </div>
 
     <div class="section" data-league="LMB">
       <div class="section-header" data-section="lmb">
-        <div class="section-title">
-          <span>LMB</span>
-        </div>
+        <div class="section-title"><span>LMB</span></div>
         <div class="section-toggle"></div>
       </div>
-      <div class="section-content" id="lmb-content">
-        <div class="loading">Loading...</div>
-      </div>
+      <div class="section-content" id="lmb-content"></div>
     </div>
 
     <div class="section" data-league="AAA">
       <div class="section-header" data-section="aaa">
-        <div class="section-title">
-          <span>AAA</span>
-        </div>
+        <div class="section-title"><span>AAA</span></div>
         <div class="section-toggle"></div>
       </div>
-      <div class="section-content" id="aaa-content">
-        <div class="loading">Loading...</div>
-      </div>
+      <div class="section-content" id="aaa-content"></div>
     </div>
   </div>
 
   <script>
     const API_CACHE = {};
-    const CACHE_TTL = 3000; // 3 seconds for rapid refresh
+    const CACHE_TTL = 45000;
     let allGames = {};
     let favorites = new Set(JSON.parse(localStorage.getItem('baseball_favorites') || '[]'));
-    let lastRefresh = 0;
-    let autoRefreshInterval = null;
 
-    const leagues = {
-      MLB: { id: 'mlb', shortName: 'MLB', color: '#1a6ef5' },
-      NPB: { id: 'npb', shortName: 'NPB', color: '#1a6ef5' },
-      KBO: { id: 'kbo', shortName: 'KBO', color: '#1a6ef5' },
-      LMB: { id: 'lmb', shortName: 'LMB', color: '#1a6ef5' },
-      AAA: { id: 'aaa', shortName: 'AAA', color: '#1a6ef5' }
-    };
-
-    // Memphis shapes
-    function initShapes() {
-      const shapesLayer = document.getElementById('shapes-layer');
-      const shapes = [
-        { type: 'circle', cx: 20, cy: 100, r: 16, fill: '#1a6ef5', stroke: 4 },
-        { type: 'rect', x: 40, y: 250, w: 24, h: 24, rotate: 15, fill: 'none', stroke: '#e8234a', strokeW: 4 },
-        { type: 'circle', cx: 60, cy: 400, r: 12, fill: 'none', stroke: '#00a86b', strokeW: 5 },
-        { type: 'wave', x: 30, y: 550, fill: 'none', stroke: '#f5620a', strokeW: 4 },
-        { type: 'triangle', x: 50, y: 700, fill: '#8b1af5', opacity: 0.7 },
-        { type: 'plus', x: 40, y: 850, fill: 'none', stroke: '#1a6ef5', strokeW: 4 },
-        { type: 'zigzag', x: 35, y: 1000, stroke: '#e8234a', strokeW: 3 },
-        { type: 'diamond', cx: 55, cy: 1150, r: 14, fill: 'none', stroke: '#00a86b', strokeW: 4 },
-        { type: 'circle', cx: 70, cy: 200, r: 10, fill: '#f5620a' },
-        { type: 'rect', x: 45, y: 450, w: 18, h: 18, rotate: -20, fill: 'none', stroke: '#8b1af5', strokeW: 3 },
-        { type: 'dashes', cx: 65, cy: 600, r: 16, stroke: '#1a6ef5', strokeW: 4 },
-        { type: 'star', x: 50, y: 800, fill: '#f5a623' },
-        { type: 'cluster', x: 40, y: 950, colors: ['#1a6ef5', '#e8234a', '#00a86b'] },
-        { type: 'concentric', cx: 60, cy: 1100, rOuter: 18, rInner: 10, stroke: '#f5620a', strokeW: 3 }
-      ];
-
-      shapes.forEach((shape, i) => {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('class', `ms`);
-        svg.setAttribute('style', `--r: ${Math.random() * 35}deg; ${shape.cy ? `top: ${shape.cy}px` : `top: ${shape.y}px`}; ${shape.cx ? `left: ${shape.cx}px` : `left: ${shape.x}px`};`);
-        svg.setAttribute('viewBox', '0 0 100 100');
-        svg.setAttribute('width', '60');
-        svg.setAttribute('height', '60');
-
-        let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-        if (shape.type === 'circle') {
-          let circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          circle.setAttribute('cx', '50');
-          circle.setAttribute('cy', '50');
-          circle.setAttribute('r', shape.r);
-          circle.setAttribute('fill', shape.fill || 'none');
-          circle.setAttribute('stroke', shape.stroke || 'none');
-          circle.setAttribute('stroke-width', shape.strokeW || 0);
-          g.appendChild(circle);
-        } else if (shape.type === 'rect') {
-          let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          rect.setAttribute('x', '38');
-          rect.setAttribute('y', '38');
-          rect.setAttribute('width', '24');
-          rect.setAttribute('height', '24');
-          rect.setAttribute('fill', shape.fill || 'none');
-          rect.setAttribute('stroke', shape.stroke || 'none');
-          rect.setAttribute('stroke-width', shape.strokeW || 0);
-          rect.setAttribute('transform', `rotate(${shape.rotate} 50 50)`);
-          g.appendChild(rect);
-        } else if (shape.type === 'wave') {
-          let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('d', 'M 20 50 Q 35 35 50 50 T 80 50');
-          path.setAttribute('fill', 'none');
-          path.setAttribute('stroke', shape.stroke || '#000');
-          path.setAttribute('stroke-width', shape.strokeW || 2);
-          path.setAttribute('stroke-linecap', 'round');
-          g.appendChild(path);
-        } else if (shape.type === 'triangle') {
-          let poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-          poly.setAttribute('points', '50,20 80,80 20,80');
-          poly.setAttribute('fill', shape.fill || 'none');
-          poly.setAttribute('stroke', shape.stroke || 'none');
-          poly.setAttribute('stroke-width', shape.strokeW || 0);
-          g.appendChild(poly);
-        } else if (shape.type === 'zigzag') {
-          let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('d', 'M 30 30 L 70 50 L 30 70');
-          path.setAttribute('fill', 'none');
-          path.setAttribute('stroke', shape.stroke || '#000');
-          path.setAttribute('stroke-width', shape.strokeW || 2);
-          path.setAttribute('stroke-linecap', 'round');
-          g.appendChild(path);
-        } else if (shape.type === 'star') {
-          let poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-          poly.setAttribute('points', '50,10 61,39 90,39 67,57 78,86 50,68 22,86 33,57 10,39 39,39');
-          poly.setAttribute('fill', shape.fill || 'none');
-          poly.setAttribute('stroke', shape.stroke || 'none');
-          g.appendChild(poly);
-        } else if (shape.type === 'cluster') {
-          [16, 10, 6].forEach((r, idx) => {
-            let c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            c.setAttribute('cx', 50 + idx * 12);
-            c.setAttribute('cy', 50);
-            c.setAttribute('r', r);
-            c.setAttribute('fill', shape.colors[idx] || '#000');
-            g.appendChild(c);
-          });
-        } else if (shape.type === 'concentric') {
-          let c1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          c1.setAttribute('cx', '50');
-          c1.setAttribute('cy', '50');
-          c1.setAttribute('r', '18');
-          c1.setAttribute('fill', 'none');
-          c1.setAttribute('stroke', shape.stroke || '#000');
-          c1.setAttribute('stroke-width', shape.strokeW || 2);
-          g.appendChild(c1);
-
-          let c2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          c2.setAttribute('cx', '50');
-          c2.setAttribute('cy', '50');
-          c2.setAttribute('r', '10');
-          c2.setAttribute('fill', 'none');
-          c2.setAttribute('stroke', shape.stroke || '#000');
-          c2.setAttribute('stroke-width', shape.strokeW || 2);
-          g.appendChild(c2);
-        }
-
-        svg.appendChild(g);
-        shapesLayer.appendChild(svg);
-      });
-
-      // Trigger shapes on scroll
-      const shapeElements = document.querySelectorAll('.ms');
-      const shapeData = Array.from(shapeElements).map((el, i) => {
-        const top = parseFloat(el.style.top) || 0;
-        const threshold = Math.max(0, top - window.innerHeight * 0.75);
-        const delay = (i % 4) * 80;
-        return { el, threshold, delay, triggered: false };
-      });
-
-      function checkShapes() {
-        const scrollY = window.scrollY;
-        shapeData.forEach((item, i) => {
-          if (!item.triggered && scrollY >= item.threshold) {
-            shapeData[i].triggered = true;
-            setTimeout(() => item.el.classList.add('visible'), item.delay);
-          }
-        });
-      }
-      checkShapes();
-      window.addEventListener('scroll', checkShapes, { passive: true });
-    }
-
-    // Fetch with detailed error logging
-    async function safeFetch(url) {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return await response.json();
-      } catch (e) {
-        console.warn(`Fetch failed for ${url}:`, e.message);
-        return null;
-      }
-    }
-
-    // MLB - Using Flashscore API endpoint (more reliable)
-    async function fetchMLB() {
-      const now = Date.now();
-      if (API_CACHE['mlb'] && now - API_CACHE['mlb'].time < CACHE_TTL) {
-        return API_CACHE['mlb'].data;
-      }
-
-      // Fallback data - in production would use real API
-      const fallbackGames = [
+    // Sample data
+    const sampleGames = {
+      mlb: [
         { league: 'MLB', id: 'mlb1', homeTeam: 'Baltimore Orioles', awayTeam: 'New York Yankees', homeScore: 4, awayScore: 2, status: 'STATUS_IN_PROGRESS', inning: 6 },
         { league: 'MLB', id: 'mlb2', homeTeam: 'Boston Red Sox', awayTeam: 'Toronto Blue Jays', homeScore: 3, awayScore: 3, status: 'STATUS_IN_PROGRESS', inning: 7 },
         { league: 'MLB', id: 'mlb3', homeTeam: 'Los Angeles Dodgers', awayTeam: 'San Francisco Giants', homeScore: 5, awayScore: 1, status: 'STATUS_FINAL', inning: 9 }
-      ];
-
-      API_CACHE['mlb'] = { time: now, data: fallbackGames };
-      return fallbackGames;
-    }
-
-    // NPB
-    async function fetchNPB() {
-      const now = Date.now();
-      if (API_CACHE['npb'] && now - API_CACHE['npb'].time < CACHE_TTL) {
-        return API_CACHE['npb'].data;
-      }
-
-      const fallbackGames = [
+      ],
+      npb: [
         { league: 'NPB', id: 'npb1', homeTeam: 'Yomiuri Giants', awayTeam: 'Hanshin Tigers', homeScore: 3, awayScore: 2, status: 'STATUS_FINAL', inning: 9 },
         { league: 'NPB', id: 'npb2', homeTeam: 'Yakult Swallows', awayTeam: 'Yokohama BayStars', homeScore: 5, awayScore: 4, status: 'STATUS_IN_PROGRESS', inning: 7 }
-      ];
-
-      API_CACHE['npb'] = { time: now, data: fallbackGames };
-      return fallbackGames;
-    }
-
-    // KBO
-    async function fetchKBO() {
-      const now = Date.now();
-      if (API_CACHE['kbo'] && now - API_CACHE['kbo'].time < CACHE_TTL) {
-        return API_CACHE['kbo'].data;
-      }
-
-      const fallbackGames = [
+      ],
+      kbo: [
         { league: 'KBO', id: 'kbo1', homeTeam: 'LG Twins', awayTeam: 'Samsung Lions', homeScore: 4, awayScore: 3, status: 'STATUS_IN_PROGRESS', inning: 5 },
         { league: 'KBO', id: 'kbo2', homeTeam: 'Hanwha Eagles', awayTeam: 'Doosan Bears', homeScore: 2, awayScore: 2, status: 'STATUS_SCHEDULED', inning: 0 }
-      ];
-
-      API_CACHE['kbo'] = { time: now, data: fallbackGames };
-      return fallbackGames;
-    }
-
-    // AAA
-    async function fetchAAA() {
-      const now = Date.now();
-      if (API_CACHE['aaa'] && now - API_CACHE['aaa'].time < CACHE_TTL) {
-        return API_CACHE['aaa'].data;
-      }
-
-      const fallbackGames = [
+      ],
+      lmb: [
+        { league: 'LMB', id: 'lmb1', homeTeam: 'Diablos Rojos', awayTeam: 'Sultanes de Monterrey', homeScore: 6, awayScore: 4, status: 'STATUS_FINAL', inning: 9 }
+      ],
+      aaa: [
         { league: 'AAA', id: 'aaa1', homeTeam: 'Columbus Clippers', awayTeam: 'Toledo Mud Hens', homeScore: 5, awayScore: 3, status: 'STATUS_IN_PROGRESS', inning: 6 },
         { league: 'AAA', id: 'aaa2', homeTeam: 'Omaha Storm Chasers', awayTeam: 'Las Vegas Aviators', homeScore: 2, awayScore: 1, status: 'STATUS_FINAL', inning: 9 }
-      ];
+      ]
+    };
 
-      API_CACHE['aaa'] = { time: now, data: fallbackGames };
-      return fallbackGames;
+    // Fetch functions
+    async function fetchMLB() {
+      const now = Date.now();
+      if (API_CACHE['mlb'] && now - API_CACHE['mlb'].time < CACHE_TTL) return API_CACHE['mlb'].data;
+      const data = sampleGames.mlb;
+      API_CACHE['mlb'] = { time: now, data };
+      return data;
     }
 
-    // LMB placeholder (needs Data Sports Group API key)
+    async function fetchNPB() {
+      const now = Date.now();
+      if (API_CACHE['npb'] && now - API_CACHE['npb'].time < CACHE_TTL) return API_CACHE['npb'].data;
+      const data = sampleGames.npb;
+      API_CACHE['npb'] = { time: now, data };
+      return data;
+    }
+
+    async function fetchKBO() {
+      const now = Date.now();
+      if (API_CACHE['kbo'] && now - API_CACHE['kbo'].time < CACHE_TTL) return API_CACHE['kbo'].data;
+      const data = sampleGames.kbo;
+      API_CACHE['kbo'] = { time: now, data };
+      return data;
+    }
+
     async function fetchLMB() {
       const now = Date.now();
-      if (API_CACHE['lmb'] && now - API_CACHE['lmb'].time < CACHE_TTL) {
-        return API_CACHE['lmb'].data;
-      }
-
-      // Mock data - replace with Data Sports Group API when key available
-      const mockData = [
-        { league: 'LMB', id: 'lmb1', homeTeam: 'Diablos Rojos', awayTeam: 'Sultanes de Monterrey', homeScore: 6, awayScore: 4, status: 'STATUS_FINAL', inning: 9 }
-      ];
-      
-      API_CACHE['lmb'] = { time: now, data: mockData };
-      return mockData;
+      if (API_CACHE['lmb'] && now - API_CACHE['lmb'].time < CACHE_TTL) return API_CACHE['lmb'].data;
+      const data = sampleGames.lmb;
+      API_CACHE['lmb'] = { time: now, data };
+      return data;
     }
 
-    // Render game card
-    function renderCard(game, isFavorite = false) {
-      const isLive = game.status === 'STATUS_IN_PROGRESS';
-      const isScheduled = game.status === 'STATUS_SCHEDULED';
-      
-      let statusText = 'Final';
-      if (isLive) statusText = `Live - ${game.inning || game.period || 0}${game.league === 'MLB' ? ' in' : ''}`;
-      if (isScheduled) statusText = 'Upcoming';
+    async function fetchAAA() {
+      const now = Date.now();
+      if (API_CACHE['aaa'] && now - API_CACHE['aaa'].time < CACHE_TTL) return API_CACHE['aaa'].data;
+      const data = sampleGames.aaa;
+      API_CACHE['aaa'] = { time: now, data };
+      return data;
+    }
 
+    // Render card
+    function renderCard(game) {
+      const isLive = game.status === 'STATUS_IN_PROGRESS';
       const homeKey = `${game.league}-${game.homeTeam}`;
       const awayKey = `${game.league}-${game.awayTeam}`;
+      const isFav = favorites.has(homeKey) || favorites.has(awayKey);
+      
+      const statusText = isLive ? `Live - Inning ${game.inning}` : game.status === 'STATUS_FINAL' ? 'Final' : 'Upcoming';
 
       const wrap = document.createElement('div');
       wrap.className = 'card-wrap';
@@ -671,125 +453,136 @@
               <span class="team-score">${game.homeScore}</span>
             </div>
           </div>
-          <button class="favorite-btn" data-away="${awayKey}" data-home="${homeKey}" data-game-id="${game.id}">
-            ${favorites.has(homeKey) || favorites.has(awayKey) ? '⭐' : '☆'}
-          </button>
+          <button class="favorite-btn" data-home="${homeKey}" data-away="${awayKey}">${isFav ? '⭐' : '☆'}</button>
         </div>
         <div class="card-status">${statusText}</div>
-        ${isLive ? `<div class="card-inning">${game.league === 'MLB' ? 'Inning' : 'Period'} ${game.inning || game.period || 0}</div>` : ''}
       `;
 
       card.querySelector('.favorite-btn').addEventListener('click', (e) => {
         e.stopPropagation();
-        toggleFavorite(homeKey, awayKey);
-        updateFavoritesDisplay();
-        renderAllGames();
+        const hk = e.target.dataset.home;
+        const ak = e.target.dataset.away;
+        if (favorites.has(hk)) {
+          favorites.delete(hk);
+        } else if (favorites.has(ak)) {
+          favorites.delete(ak);
+        } else {
+          favorites.add(hk);
+        }
+        localStorage.setItem('baseball_favorites', JSON.stringify(Array.from(favorites)));
+        renderAll();
       });
 
       wrap.appendChild(card);
       return wrap;
     }
 
-    // Toggle favorite
-    function toggleFavorite(homeKey, awayKey) {
-      if (favorites.has(homeKey)) {
-        favorites.delete(homeKey);
-      } else if (favorites.has(awayKey)) {
-        favorites.delete(awayKey);
-      } else {
-        favorites.add(homeKey);
-      }
-      localStorage.setItem('baseball_favorites', JSON.stringify(Array.from(favorites)));
-    }
-
-    // Update favorites section
-    function updateFavoritesDisplay() {
+    // Render sections
+    function updateFavorites() {
       const container = document.getElementById('favorites-content');
       container.innerHTML = '';
-
-      if (favorites.size === 0) {
+      const allLive = Object.values(allGames).flat().filter(g => g.status !== 'STATUS_SCHEDULED');
+      const favGames = allLive.filter(g => favorites.has(`${g.league}-${g.homeTeam}`) || favorites.has(`${g.league}-${g.awayTeam}`));
+      
+      if (favGames.length === 0) {
         container.innerHTML = '<div class="empty-state">No favorites yet. Star a team to add it here.</div>';
         return;
       }
-
-      const allLiveGames = Object.values(allGames).flat().filter(g => g.status === 'STATUS_IN_PROGRESS' || g.status === 'STATUS_FINAL');
-      const favoriteGames = allLiveGames.filter(g => {
-        const homeKey = `${g.league}-${g.homeTeam}`;
-        const awayKey = `${g.league}-${g.awayTeam}`;
-        return favorites.has(homeKey) || favorites.has(awayKey);
-      });
-
-      if (favoriteGames.length === 0) {
-        container.innerHTML = '<div class="empty-state">No games for your favorite teams today.</div>';
-        return;
-      }
-
-      favoriteGames.forEach(game => {
-        container.appendChild(renderCard(game, true));
-      });
+      favGames.forEach(g => container.appendChild(renderCard(g)));
     }
 
-    // Update live section
-    function updateLiveDisplay() {
+    function updateLive() {
       const container = document.getElementById('live-content');
       container.innerHTML = '';
-
-      const liveGames = Object.values(allGames)
-        .flat()
-        .filter(g => g.status === 'STATUS_IN_PROGRESS')
-        .sort((a, b) => (b.inning || b.period || 0) - (a.inning || a.period || 0));
-
+      const liveGames = Object.values(allGames).flat().filter(g => g.status === 'STATUS_IN_PROGRESS');
+      
       if (liveGames.length === 0) {
         container.innerHTML = '<div class="empty-state">No live games right now. Check back soon!</div>';
         return;
       }
-
-      liveGames.forEach(game => {
-        container.appendChild(renderCard(game));
-      });
+      liveGames.forEach(g => container.appendChild(renderCard(g)));
     }
 
-    // Render league section
-    function renderLeague(leagueCode) {
-      const container = document.getElementById(`${leagueCode}-content`);
-      const games = allGames[leagueCode] || [];
-
+    function renderLeague(league, code) {
+      const container = document.getElementById(`${code}-content`);
+      const games = allGames[code] || [];
       container.innerHTML = '';
-
+      
       if (games.length === 0) {
-        container.innerHTML = '<div class="empty-state">No games scheduled today.</div>';
+        container.innerHTML = '<div class="empty-state">No games scheduled.</div>';
         return;
       }
-
-      const sorted = [...games].sort((a, b) => {
-        const aLive = a.status === 'STATUS_IN_PROGRESS' ? 0 : 1;
-        const bLive = b.status === 'STATUS_IN_PROGRESS' ? 0 : 1;
-        return aLive - bLive;
-      });
-
-      sorted.forEach(game => {
-        container.appendChild(renderCard(game));
-      });
+      
+      const sorted = [...games].sort((a, b) => (a.status === 'STATUS_IN_PROGRESS' ? -1 : 1));
+      sorted.forEach(g => container.appendChild(renderCard(g)));
     }
 
-    // Render all
-    async function renderAllGames() {
-      await loadAllGames();
-      updateFavoritesDisplay();
-      updateLiveDisplay();
-      Object.keys(leagues).forEach(league => renderLeague(leagues[league].id));
-    }
-
-    // Load all games
-    async function loadAllGames() {
+    async function renderAll() {
       allGames.mlb = await fetchMLB();
       allGames.npb = await fetchNPB();
       allGames.kbo = await fetchKBO();
       allGames.lmb = await fetchLMB();
       allGames.aaa = await fetchAAA();
+      
+      updateFavorites();
+      updateLive();
+      renderLeague('MLB', 'mlb');
+      renderLeague('NPB', 'npb');
+      renderLeague('KBO', 'kbo');
+      renderLeague('LMB', 'lmb');
+      renderLeague('AAA', 'aaa');
     }
 
-    // Section toggle
+    // Init shapes
+    function initShapes() {
+      const layer = document.getElementById('shapes-layer');
+      const shapes = [
+        { cx: 20, cy: 100, r: 16, fill: '#1a6ef5' },
+        { cx: 60, cy: 400, r: 12, fill: '#e8234a' },
+        { cx: 40, cy: 700, r: 10, fill: '#00a86b' },
+        { cx: 70, cy: 200, r: 8, fill: '#f5620a' },
+        { cx: 30, cy: 900, r: 14, fill: '#8b1af5' }
+      ];
+      
+      shapes.forEach((s, i) => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'ms');
+        svg.setAttribute('style', `--r: ${Math.random() * 35}deg; top: ${s.cy}px; left: ${s.cx}px;`);
+        svg.setAttribute('viewBox', '0 0 100 100');
+        svg.setAttribute('width', '60');
+        svg.setAttribute('height', '60');
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '50');
+        circle.setAttribute('cy', '50');
+        circle.setAttribute('r', s.r);
+        circle.setAttribute('fill', s.fill);
+        svg.appendChild(circle);
+        layer.appendChild(svg);
+      });
+
+      const shapeElements = document.querySelectorAll('.ms');
+      const shapeData = Array.from(shapeElements).map((el, i) => ({
+        el,
+        threshold: Math.max(0, (parseFloat(el.style.top) || 0) - window.innerHeight * 0.75),
+        delay: (i % 4) * 80,
+        triggered: false
+      }));
+
+      function checkShapes() {
+        const scrollY = window.scrollY;
+        shapeData.forEach((item, i) => {
+          if (!item.triggered && scrollY >= item.threshold) {
+            shapeData[i].triggered = true;
+            setTimeout(() => item.el.classList.add('visible'), item.delay);
+          }
+        });
+      }
+      checkShapes();
+      window.addEventListener('scroll', checkShapes, { passive: true });
+    }
+
+    // Toggle sections
     document.querySelectorAll('.section-header').forEach(header => {
       header.addEventListener('click', () => {
         const content = header.nextElementSibling;
@@ -799,29 +592,14 @@
       });
     });
 
-    // Refresh button
     document.getElementById('refreshBtn').addEventListener('click', () => {
       Object.keys(API_CACHE).forEach(k => delete API_CACHE[k]);
-      renderAllGames();
+      renderAll();
     });
 
     // Init
-    async function init() {
-      initShapes();
-      await renderAllGames();
-      
-      // Auto-refresh every 45 seconds
-      autoRefreshInterval = setInterval(() => {
-        const now = Date.now();
-        if (now - lastRefresh > 40000) {
-          Object.keys(API_CACHE).forEach(k => delete API_CACHE[k]);
-          renderAllGames();
-          lastRefresh = now;
-        }
-      }, 10000);
-    }
-
-    init();
+    initShapes();
+    renderAll();
   </script>
 </body>
 </html>
