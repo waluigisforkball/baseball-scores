@@ -419,27 +419,43 @@
 
     const leagueTeams = {
       MLB: [
-        'Baltimore Orioles', 'New York Yankees', 'Boston Red Sox', 'Toronto Blue Jays', 'Tampa Bay Rays',
-        'New York Mets', 'Philadelphia Phillies', 'Atlanta Braves', 'Washington Nationals', 'Miami Marlins',
+        // AL East
+        'Baltimore Orioles', 'Boston Red Sox', 'New York Yankees', 'Tampa Bay Rays', 'Toronto Blue Jays',
+        // AL Central
         'Chicago White Sox', 'Cleveland Guardians', 'Detroit Tigers', 'Kansas City Royals', 'Minnesota Twins',
-        'Houston Astros', 'Texas Rangers', 'Oakland Athletics', 'Seattle Mariners', 'Los Angeles Angels',
-        'Los Angeles Dodgers', 'San Francisco Giants', 'San Diego Padres', 'Colorado Rockies', 'Arizona Diamondbacks'
+        // AL West
+        'Houston Astros', 'Los Angeles Angels', 'Oakland Athletics', 'Seattle Mariners', 'Texas Rangers',
+        // NL East
+        'Atlanta Braves', 'Miami Marlins', 'New York Mets', 'Philadelphia Phillies', 'Washington Nationals',
+        // NL Central
+        'Chicago Cubs', 'Cincinnati Reds', 'Milwaukee Brewers', 'Pittsburgh Pirates', 'St. Louis Cardinals',
+        // NL West
+        'Arizona Diamondbacks', 'Colorado Rockies', 'Los Angeles Dodgers', 'San Diego Padres', 'San Francisco Giants'
       ],
       NPB: [
-        'Yomiuri Giants', 'Hanshin Tigers', 'Chunichi Dragons', 'Yokohama BayStars', 'Yakult Swallows', 'Hiroshima Carp',
-        'Orix Buffaloes', 'Seibu Lions', 'Fukuoka SoftBank Hawks', 'Chiba Lotte Marines', 'Tohoku Rakuten Eagles', 'Hokkaido Nippon-Ham Fighters'
+        // Central League
+        'Yomiuri Giants', 'Hanshin Tigers', 'Hiroshima Carp', 'Chunichi Dragons', 'Yakult Swallows', 'Yokohama BayStars',
+        // Pacific League
+        'Fukuoka SoftBank Hawks', 'Chiba Lotte Marines', 'Orix Buffaloes', 'Seibu Lions', 'Tohoku Rakuten Eagles', 'Hokkaido Nippon-Ham Fighters'
       ],
       KBO: [
         'LG Twins', 'Kia Tigers', 'Samsung Lions', 'Hanwha Eagles', 'Doosan Bears',
-        'NC Dinos', 'SSG Landers', 'KT Wiz', 'Lotte Giants'
+        'NC Dinos', 'SSG Landers', 'KT Wiz Suwon', 'Lotte Giants'
       ],
       LMB: [
         'Diablos Rojos', 'Sultanes de Monterrey', 'Bravos de León', 'Pericos de Puebla', 'Toros de Durango',
-        'Generales de Durango', 'Rieleros de Aguascalientes', 'Industriales de Monterrey'
+        'Generales de Durango', 'Rieleros de Aguascalientes', 'Industriales de Monterrey', 'Acereros de Monclova'
       ],
       AAA: [
-        'Columbus Clippers', 'Toledo Mud Hens', 'Omaha Storm Chasers', 'Las Vegas Aviators', 'Buffalo Bisons',
-        'Durham Bulls', 'Norfolk Tides', 'Louisville Bats', 'Indianapolis Indians', 'Charlotte Knights'
+        // International League
+        'Buffalo Bisons', 'Charlotte Knights', 'Durham Bulls', 'Indianapolis Indians', 'Lehigh Valley IronPigs',
+        'Louisville Bats', 'Norfolk Tides', 'Providence Greyhouds', 'Rochester Red Wings', 'Scranton Wilkes-Barre RailRiders',
+        'Syracuse Mets', 'Gwinnett Stripers', 'Memphis Redbirds', 'Omaha Storm Chasers',
+        // Pacific Coast League
+        'Albuquerque Isotopes', 'Colorado Springs Sky Sox', 'El Paso Chihuahuas', 'Fresno Grizzlies',
+        'Las Vegas Aviators', 'Long Beach Breakers', 'Oklahoma City Dodgers', 'Reno Aces',
+        'Sacramento River Cats', 'Salt Lake Bees', 'Tacoma Rainiers', 'Toledo Mud Hens', 'Tucson Roadrunners',
+        'Columbus Clippers'
       ]
     };
 
@@ -453,19 +469,28 @@
         const data = await response.json();
         
         const games = (data.events || []).map(event => {
-          const comp = event.competitions[0];
-          return {
-            league: 'MLB',
-            id: event.id,
-            homeTeam: comp.home.team.displayName,
-            awayTeam: comp.away.team.displayName,
-            homeScore: comp.home.score || 0,
-            awayScore: comp.away.score || 0,
-            status: comp.status.type,
-            inning: comp.inning || 0,
-            timestamp: event.date
-          };
-        });
+          try {
+            const comp = event.competitions?.[0];
+            if (!comp) return null;
+            
+            const homeTeam = comp.home?.team?.displayName || comp.home?.name || 'Unknown';
+            const awayTeam = comp.away?.team?.displayName || comp.away?.name || 'Unknown';
+            
+            return {
+              league: 'MLB',
+              id: event.id,
+              homeTeam: homeTeam,
+              awayTeam: awayTeam,
+              homeScore: comp.home?.score || 0,
+              awayScore: comp.away?.score || 0,
+              status: comp.status?.type || 'STATUS_SCHEDULED',
+              inning: comp.inning || 0,
+              timestamp: event.date
+            };
+          } catch (e) {
+            return null;
+          }
+        }).filter(g => g !== null);
         
         API_CACHE['mlb'] = { time: now, data: games };
         return games;
