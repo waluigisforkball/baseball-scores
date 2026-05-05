@@ -8,163 +8,125 @@
   <title>BB Scores</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
     body {
-      font-family: 'Nunito Sans', sans-serif;
-      font-weight: 600;
-      background-color: #fdf8f0;
-      background-image: radial-gradient(circle, #c4bdb0 1.5px, transparent 1.5px);
-      background-size: 20px 20px;
-      background-attachment: fixed;
-      color: #15120a;
+      font-family:'Nunito Sans',sans-serif;
+      font-weight:600;
+      background:#fdf8f0;
+      background-image:radial-gradient(circle,#c4bdb0 1.5px,transparent 1.5px);
+      background-size:20px 20px;
+      background-attachment:fixed;
+      color:#15120a;
     }
 
-    /* ── Shapes ── */
-    #shapes-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-    .ms {
-      position: absolute;
-      opacity: 0;
-      transform: scale(0.4) rotate(var(--r, 0deg));
-      transition: opacity 0.45s cubic-bezier(0.34,1.56,0.64,1), transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .ms.visible { opacity: 1; transform: scale(1) rotate(var(--r, 0deg)); }
+    /* Shapes */
+    #shapes-layer{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .ms{position:absolute;opacity:0;transform:scale(.4) rotate(var(--r,0deg));
+      transition:opacity .45s cubic-bezier(.34,1.56,.64,1),transform .45s cubic-bezier(.34,1.56,.64,1)}
+    .ms.visible{opacity:1;transform:scale(1) rotate(var(--r,0deg))}
 
-    /* ── Header ── */
-    .header {
-      position: sticky; top: 0; z-index: 100;
-      background: #15120a;
-      border-bottom: 6px solid #1a6ef5;
-      padding: 14px 20px 12px;
-    }
-    .header-content { display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-family: 'Nunito', sans-serif; font-size: 28px; font-weight: 900; color: #1a6ef5; }
-    .logo span { color: #fff; font-weight: 400; }
-    .header-controls { display: flex; gap: 10px; }
-    .icon-btn {
-      background: #1a6ef5; color: white; border: none; border-radius: 11px;
-      padding: 8px 14px; font-family: 'Nunito Sans', sans-serif;
-      font-weight: 800; font-size: 16px; cursor: pointer;
-      transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .icon-btn:hover { transform: scale(1.05); }
-    .icon-btn:active { transform: scale(0.95); }
+    /* Header */
+    .header{position:sticky;top:0;z-index:100;background:#15120a;border-bottom:6px solid #1a6ef5;padding:14px 20px 12px}
+    .header-content{display:flex;justify-content:space-between;align-items:center}
+    .logo{font-family:'Nunito',sans-serif;font-size:28px;font-weight:900;color:#1a6ef5}
+    .logo span{color:#fff;font-weight:400}
+    .header-controls{display:flex;gap:10px}
+    .icon-btn{background:#1a6ef5;color:#fff;border:none;border-radius:11px;padding:8px 14px;
+      font-family:'Nunito Sans',sans-serif;font-weight:800;font-size:16px;cursor:pointer;
+      transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+    .icon-btn:hover{transform:scale(1.05)}
+    .icon-btn:active{transform:scale(.95)}
 
-    /* ── Sidebar ── */
-    .sidebar-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.35);
-      z-index: 150; display: none;
-    }
-    .sidebar-overlay.open { display: block; }
-    .sidebar {
-      position: fixed; top: 0; left: -310px; width: 290px; height: 100vh;
-      background: #fffef9; border-right: 3px solid #ddd5c5;
-      z-index: 200; transition: left 0.3s ease; overflow-y: auto;
-    }
-    .sidebar.open { left: 0; }
-    .sidebar-top {
-      background: #15120a; padding: 16px 20px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .sidebar-heading { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 16px; color: #1a6ef5; }
-    .sidebar-close {
-      background: none; border: none; color: #fff;
-      font-size: 20px; cursor: pointer; font-weight: 900;
-    }
-    .sidebar-league { border-bottom: 2px solid #ddd5c5; }
-    .sidebar-league-header {
-      background: #fdf8f0; padding: 10px 20px;
-      font-family: 'Nunito', sans-serif; font-weight: 900;
-      font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase;
-      color: #1a6ef5;
-    }
-    .team-list { padding: 8px 14px 12px; display: flex; flex-direction: column; gap: 6px; }
-    .team-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 10px; background: #fdf8f0;
-      border: 2px solid #ddd5c5; border-radius: 9px;
-      font-size: 12px; font-weight: 700; cursor: pointer;
-      transition: background 0.12s;
-    }
-    .team-item.selected { background: #dce9ff; border-color: #1a6ef5; }
-    .team-item input[type=checkbox] { width: 15px; height: 15px; accent-color: #1a6ef5; cursor: pointer; flex-shrink: 0; }
+    /* Sidebar */
+    .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:150;display:none}
+    .sidebar-overlay.open{display:block}
+    .sidebar{position:fixed;top:0;left:-310px;width:290px;height:100vh;background:#fffef9;
+      border-right:3px solid #ddd5c5;z-index:200;transition:left .3s ease;overflow-y:auto}
+    .sidebar.open{left:0}
+    .sidebar-top{background:#15120a;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+    .sidebar-heading{font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;color:#1a6ef5}
+    .sidebar-close{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;font-weight:900}
+    .sidebar-league{border-bottom:2px solid #ddd5c5}
+    .sidebar-league-header{background:#fdf8f0;padding:10px 20px;font-family:'Nunito',sans-serif;
+      font-weight:900;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:#1a6ef5}
+    .team-list{padding:8px 14px 12px;display:flex;flex-direction:column;gap:6px}
+    .team-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fdf8f0;
+      border:2px solid #ddd5c5;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;
+      transition:background .12s}
+    .team-item.selected{background:#dce9ff;border-color:#1a6ef5}
+    .team-item input[type=checkbox]{width:15px;height:15px;accent-color:#1a6ef5;cursor:pointer;flex-shrink:0}
+    .team-item img{width:18px;height:18px;flex-shrink:0;object-fit:contain}
 
-    /* ── Main ── */
-    .main {
-      position: relative; z-index: 10;
-      padding: 20px; padding-bottom: 48px;
-      max-width: 600px; margin: 0 auto;
-    }
+    /* Main */
+    .main{position:relative;z-index:10;padding:20px;padding-bottom:48px;max-width:600px;margin:0 auto}
 
-    /* ── Section ── */
-    .section { margin-bottom: 22px; }
-    .section-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 12px; cursor: pointer; user-select: none;
+    /* Section Header — solid background with offset shadow for readability */
+    .section{margin-bottom:22px}
+    .section-header-wrap{position:relative;margin-bottom:14px;cursor:pointer;user-select:none}
+    .section-header-shadow{
+      position:absolute;top:5px;left:5px;right:-5px;bottom:-5px;
+      background:#b8ae9e;border-radius:12px;z-index:0;
     }
-    .section-title {
-      font-family: 'Nunito', sans-serif; font-size: 18px;
-      font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;
+    .section-header{
+      position:relative;z-index:1;
+      background:#15120a;
+      border:3px solid #15120a;
+      border-radius:12px;
+      padding:10px 16px;
+      display:flex;justify-content:space-between;align-items:center;
     }
-    .chevron { font-size: 14px; color: #5a5040; transition: transform 0.2s; }
-    .chevron.down { transform: rotate(0deg); }
-    .chevron.up { transform: rotate(180deg); }
-    .section-body { overflow: hidden; transition: max-height 0.3s ease; max-height: 9999px; }
-    .section-body.closed { max-height: 0; }
+    .section-title{
+      font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;
+      text-transform:uppercase;letter-spacing:.5px;color:#fff;
+      display:flex;align-items:center;gap:8px;
+    }
+    .chevron{font-size:14px;color:#fff;transition:transform .2s;font-weight:900}
+    .chevron.up{transform:rotate(180deg)}
+    .section-body{overflow:hidden;transition:max-height .3s ease;max-height:9999px}
+    .section-body.closed{max-height:0}
 
-    /* ── Cards ── */
-    .card-wrap { position: relative; margin-bottom: 14px; }
-    .card-shadow {
-      position: absolute; top: 5px; left: 5px; right: -5px; bottom: -5px;
-      background: #b8ae9e; border-radius: 16px; z-index: 0;
-    }
-    .card {
-      position: relative; z-index: 1;
-      background: #fffef9; border: 2.5px solid #ddd5c5;
-      border-left: 7px solid #1a6ef5; border-radius: 16px;
-      padding: 12px 14px;
-      transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .card:hover { transform: translate(-2px,-2px); }
-    .card.live { border-left-color: #e8234a; background: #fff5f7; }
-    .card.fav { border-left-color: #f5a623; }
-    .card.live.fav { border-left-color: #e8234a; }
+    /* Cards */
+    .card-wrap{position:relative;margin-bottom:14px}
+    .card-shadow{position:absolute;top:5px;left:5px;right:-5px;bottom:-5px;background:#b8ae9e;border-radius:16px;z-index:0}
+    .card{position:relative;z-index:1;background:#fffef9;border:2.5px solid #ddd5c5;
+      border-left:7px solid #1a6ef5;border-radius:16px;padding:12px 14px;
+      transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+    .card:hover{transform:translate(-2px,-2px)}
+    .card.live{border-left-color:#e8234a;background:#fff5f7}
+    .card.fav{border-left-color:#f5a623}
+    .card.live.fav{border-left-color:#e8234a}
 
-    .card-teams { margin-bottom: 6px; }
-    .card-team {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 5px;
+    .card-teams{margin-bottom:8px}
+    .card-team{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:10px}
+    .team-info{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+    .team-logo{width:24px;height:24px;flex-shrink:0;object-fit:contain}
+    .team-logo-fallback{
+      width:24px;height:24px;flex-shrink:0;border-radius:50%;
+      background:#ddd5c5;display:flex;align-items:center;justify-content:center;
+      font-size:10px;font-weight:900;color:#15120a;
     }
-    .team-name { font-weight: 700; font-size: 13px; }
-    .team-name.is-fav::after { content: ' ⭐'; font-size: 10px; }
-    .team-score { font-weight: 900; font-size: 17px; color: #1a6ef5; }
-    .card.live .team-score { color: #e8234a; }
+    .team-name{font-weight:700;font-size:13px;flex:1;min-width:0;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .team-name.is-fav::after{content:' ⭐';font-size:10px}
+    .team-score{font-weight:900;font-size:18px;color:#1a6ef5;flex-shrink:0}
+    .card.live .team-score{color:#e8234a}
 
-    .card-footer { display: flex; justify-content: space-between; align-items: center; }
-    .card-status {
-      font-size: 11px; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.3px; color: #5a5040;
-    }
-    .card.live .card-status { color: #e8234a; }
-    .league-badge {
-      font-size: 10px; font-weight: 800; padding: 2px 7px;
-      border-radius: 6px; background: #dce9ff; color: #1a6ef5;
-      text-transform: uppercase;
-    }
+    .card-footer{display:flex;justify-content:space-between;align-items:center}
+    .card-status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#5a5040}
+    .card.live .card-status{color:#e8234a}
+    .league-badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;
+      background:#dce9ff;color:#1a6ef5;text-transform:uppercase}
 
-    .empty-state { text-align: center; padding: 20px; color: #a09080; font-size: 13px; }
-    .loading-state { text-align: center; padding: 20px; color: #a09080; font-size: 13px; font-style: italic; }
-    .error-state {
-      padding: 12px 14px; background: #fff5f7; border: 2px solid #e8234a;
-      border-radius: 11px; color: #e8234a; font-size: 12px; font-weight: 700;
-      margin-bottom: 14px;
-    }
+    .empty-state{text-align:center;padding:20px;color:#a09080;font-size:13px}
+    .loading-state{text-align:center;padding:20px;color:#a09080;font-size:13px;font-style:italic}
+    .error-state{padding:12px 14px;background:#fff5f7;border:2px solid #e8234a;
+      border-radius:11px;color:#e8234a;font-size:12px;font-weight:700;margin-bottom:14px}
 
-    @media (max-width: 480px) {
-      .main { padding: 14px; }
-      .logo { font-size: 22px; }
-      .sidebar { width: 270px; left: -270px; }
+    @media (max-width:480px){
+      .main{padding:14px}
+      .logo{font-size:22px}
+      .sidebar{width:270px;left:-270px}
     }
   </style>
 </head>
@@ -185,17 +147,20 @@
   <div class="header-content">
     <div class="logo">BB <span>Scores</span></div>
     <div class="header-controls">
-      <button class="icon-btn" id="menuBtn" title="My Teams">☰</button>
-      <button class="icon-btn" id="refreshBtn" title="Refresh">↻</button>
+      <button class="icon-btn" id="menuBtn">☰</button>
+      <button class="icon-btn" id="refreshBtn">↻</button>
     </div>
   </div>
 </div>
 
 <div class="main">
   <div class="section" id="sec-favs">
-    <div class="section-header" data-sec="favs">
-      <div class="section-title">⭐ My Teams Today</div>
-      <div class="chevron down">▼</div>
+    <div class="section-header-wrap" data-sec="favs">
+      <div class="section-header-shadow"></div>
+      <div class="section-header">
+        <div class="section-title">⭐ My Teams Today</div>
+        <div class="chevron">▼</div>
+      </div>
     </div>
     <div class="section-body" id="body-favs">
       <div class="empty-state">Star your teams in the ☰ menu.</div>
@@ -203,117 +168,121 @@
   </div>
 
   <div class="section" id="sec-live">
-    <div class="section-header" data-sec="live">
-      <div class="section-title">🔴 Live Now</div>
-      <div class="chevron down">▼</div>
+    <div class="section-header-wrap" data-sec="live">
+      <div class="section-header-shadow"></div>
+      <div class="section-header">
+        <div class="section-title">🔴 Live Now</div>
+        <div class="chevron">▼</div>
+      </div>
     </div>
-    <div class="section-body" id="body-live">
-      <div class="loading-state">Loading…</div>
-    </div>
+    <div class="section-body" id="body-live"><div class="loading-state">Loading…</div></div>
   </div>
 
   <div class="section" id="sec-mlb">
-    <div class="section-header" data-sec="mlb">
-      <div class="section-title">MLB</div>
-      <div class="chevron down">▼</div>
+    <div class="section-header-wrap" data-sec="mlb">
+      <div class="section-header-shadow"></div>
+      <div class="section-header">
+        <div class="section-title">MLB</div>
+        <div class="chevron">▼</div>
+      </div>
     </div>
-    <div class="section-body" id="body-mlb">
-      <div class="loading-state">Loading…</div>
-    </div>
+    <div class="section-body" id="body-mlb"><div class="loading-state">Loading…</div></div>
   </div>
 
   <div class="section" id="sec-npb">
-    <div class="section-header" data-sec="npb">
-      <div class="section-title">NPB</div>
-      <div class="chevron down">▼</div>
+    <div class="section-header-wrap" data-sec="npb">
+      <div class="section-header-shadow"></div>
+      <div class="section-header">
+        <div class="section-title">NPB</div>
+        <div class="chevron">▼</div>
+      </div>
     </div>
-    <div class="section-body" id="body-npb">
-      <div class="loading-state">Loading…</div>
-    </div>
+    <div class="section-body" id="body-npb"><div class="loading-state">Loading…</div></div>
   </div>
 
   <div class="section" id="sec-kbo">
-    <div class="section-header" data-sec="kbo">
-      <div class="section-title">KBO</div>
-      <div class="chevron down">▼</div>
+    <div class="section-header-wrap" data-sec="kbo">
+      <div class="section-header-shadow"></div>
+      <div class="section-header">
+        <div class="section-title">KBO</div>
+        <div class="chevron">▼</div>
+      </div>
     </div>
-    <div class="section-body" id="body-kbo">
-      <div class="loading-state">Loading…</div>
-    </div>
+    <div class="section-body" id="body-kbo"><div class="loading-state">Loading…</div></div>
   </div>
 
   <div class="section" id="sec-lmb">
-    <div class="section-header" data-sec="lmb">
-      <div class="section-title">LMB</div>
-      <div class="chevron down">▼</div>
+    <div class="section-header-wrap" data-sec="lmb">
+      <div class="section-header-shadow"></div>
+      <div class="section-header">
+        <div class="section-title">LMB</div>
+        <div class="chevron">▼</div>
+      </div>
     </div>
-    <div class="section-body" id="body-lmb">
-      <div class="loading-state">Loading…</div>
-    </div>
+    <div class="section-body" id="body-lmb"><div class="loading-state">Loading…</div></div>
   </div>
 
   <div class="section" id="sec-aaa">
-    <div class="section-header" data-sec="aaa">
-      <div class="section-title">AAA</div>
-      <div class="chevron down">▼</div>
+    <div class="section-header-wrap" data-sec="aaa">
+      <div class="section-header-shadow"></div>
+      <div class="section-header">
+        <div class="section-title">AAA</div>
+        <div class="chevron">▼</div>
+      </div>
     </div>
-    <div class="section-body" id="body-aaa">
-      <div class="loading-state">Loading…</div>
-    </div>
+    <div class="section-body" id="body-aaa"><div class="loading-state">Loading…</div></div>
   </div>
 </div>
 
 <script>
-// ─────────────────────────────
-// State
-// ─────────────────────────────
 let allGames = { mlb:[], npb:[], kbo:[], lmb:[], aaa:[] };
 let favorites = new Set(JSON.parse(localStorage.getItem('bb_favs') || '[]'));
 let collapsed = new Set(JSON.parse(localStorage.getItem('bb_collapsed') || '[]'));
 
-// ─────────────────────────────
-// Complete Team Lists
-// ─────────────────────────────
+// MLB team ID → abbreviation → ESPN logo URL
+// MLB Stats API uses team ID; ESPN uses abbreviation
+const MLB_TEAMS = {
+  'Arizona Diamondbacks':{id:109,abbr:'ari'},'Atlanta Braves':{id:144,abbr:'atl'},
+  'Baltimore Orioles':{id:110,abbr:'bal'},'Boston Red Sox':{id:111,abbr:'bos'},
+  'Chicago Cubs':{id:112,abbr:'chc'},'Chicago White Sox':{id:145,abbr:'chw'},
+  'Cincinnati Reds':{id:113,abbr:'cin'},'Cleveland Guardians':{id:114,abbr:'cle'},
+  'Colorado Rockies':{id:115,abbr:'col'},'Detroit Tigers':{id:116,abbr:'det'},
+  'Houston Astros':{id:117,abbr:'hou'},'Kansas City Royals':{id:118,abbr:'kc'},
+  'Los Angeles Angels':{id:108,abbr:'laa'},'Los Angeles Dodgers':{id:119,abbr:'lad'},
+  'Miami Marlins':{id:146,abbr:'mia'},'Milwaukee Brewers':{id:158,abbr:'mil'},
+  'Minnesota Twins':{id:142,abbr:'min'},'New York Mets':{id:121,abbr:'nym'},
+  'New York Yankees':{id:147,abbr:'nyy'},'Athletics':{id:133,abbr:'oak'},
+  'Oakland Athletics':{id:133,abbr:'oak'},'Philadelphia Phillies':{id:143,abbr:'phi'},
+  'Pittsburgh Pirates':{id:134,abbr:'pit'},'San Diego Padres':{id:135,abbr:'sd'},
+  'San Francisco Giants':{id:137,abbr:'sf'},'Seattle Mariners':{id:136,abbr:'sea'},
+  'St. Louis Cardinals':{id:138,abbr:'stl'},'Tampa Bay Rays':{id:139,abbr:'tb'},
+  'Texas Rangers':{id:140,abbr:'tex'},'Toronto Blue Jays':{id:141,abbr:'tor'},
+  'Washington Nationals':{id:120,abbr:'wsh'}
+};
+
 const TEAMS = {
-  MLB: [
-    // AL East
-    'Baltimore Orioles','Boston Red Sox','New York Yankees','Tampa Bay Rays','Toronto Blue Jays',
-    // AL Central
-    'Chicago White Sox','Cleveland Guardians','Detroit Tigers','Kansas City Royals','Minnesota Twins',
-    // AL West
-    'Houston Astros','Los Angeles Angels','Oakland Athletics','Seattle Mariners','Texas Rangers',
-    // NL East
-    'Atlanta Braves','Miami Marlins','New York Mets','Philadelphia Phillies','Washington Nationals',
-    // NL Central
-    'Chicago Cubs','Cincinnati Reds','Milwaukee Brewers','Pittsburgh Pirates','St. Louis Cardinals',
-    // NL West
-    'Arizona Diamondbacks','Colorado Rockies','Los Angeles Dodgers','San Diego Padres','San Francisco Giants'
-  ],
-  NPB: [
-    // Central League
+  MLB:Object.keys(MLB_TEAMS).filter(n => n !== 'Athletics').sort(),
+  NPB:[
     'Yomiuri Giants','Hanshin Tigers','Hiroshima Carp','Chunichi Dragons','Yakult Swallows','Yokohama BayStars',
-    // Pacific League
     'Fukuoka SoftBank Hawks','Chiba Lotte Marines','Orix Buffaloes','Seibu Lions','Tohoku Rakuten Eagles','Hokkaido Nippon-Ham Fighters'
   ],
-  KBO: [
+  KBO:[
     'LG Twins','Kia Tigers','Samsung Lions','Hanwha Eagles','Doosan Bears',
-    'NC Dinos','SSG Landers','KT Wiz Suwon','Lotte Giants'
+    'NC Dinos','SSG Landers','KT Wiz Suwon','Lotte Giants','Kiwoom Heroes'
   ],
-  LMB: [
+  LMB:[
     'Diablos Rojos','Sultanes de Monterrey','Bravos de León','Pericos de Puebla',
-    'Toros de Durango','Generales de Durango','Rieleros de Aguascalientes',
+    'Toros de Tijuana','Generales de Durango','Rieleros de Aguascalientes',
     'Acereros de Monclova','Saraperos de Saltillo','Leones de Yucatan',
     'Guerreros de Oaxaca','Olmecas de Tabasco'
   ],
-  AAA: [
-    // International League (20 teams)
+  AAA:[
     'Buffalo Bisons','Charlotte Knights','Columbus Clippers','Durham Bulls',
     'Gwinnett Stripers','Indianapolis Indians','Iowa Cubs','Jacksonville Jumbo Shrimp',
     'Lehigh Valley IronPigs','Louisville Bats','Memphis Redbirds','Nashville Sounds',
     'Norfolk Tides','Omaha Storm Chasers','Rochester Red Wings',
     'Scranton/Wilkes-Barre RailRiders','St. Paul Saints','Syracuse Mets',
     'Toledo Mud Hens','Worcester Red Sox',
-    // Pacific Coast League (10 teams)
     'Albuquerque Isotopes','El Paso Chihuahuas','Las Vegas Aviators',
     'Oklahoma City Comets','Reno Aces','Round Rock Express',
     'Sacramento River Cats','Salt Lake Bees','Sugar Land Space Cowboys',
@@ -321,9 +290,16 @@ const TEAMS = {
   ]
 };
 
-// ─────────────────────────────
-// Helpers
-// ─────────────────────────────
+// Logo helpers
+function logoMLB(teamName) {
+  const t = MLB_TEAMS[teamName];
+  if (t) return `https://a.espncdn.com/i/teamlogos/mlb/500/${t.abbr}.png`;
+  return null;
+}
+function logoMLBById(id) {
+  return `https://www.mlbstatic.com/team-logos/${id}.svg`;
+}
+
 function today() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -331,137 +307,140 @@ function today() {
 
 function parseStatus(raw) {
   if (!raw) return 'STATUS_SCHEDULED';
-  const s = (raw.abstractGameState || raw.type || raw.name || '').toLowerCase();
-  if (s.includes('progress') || s.includes('live') || s === 'in progress') return 'STATUS_IN_PROGRESS';
-  if (s.includes('final') || s === 'f' || s === 'final') return 'STATUS_FINAL';
+  const s = (raw.abstractGameState || raw.codedGameState || '').toLowerCase();
+  if (s === 'live' || s.includes('progress')) return 'STATUS_IN_PROGRESS';
+  if (s === 'final' || s === 'f' || s.includes('final')) return 'STATUS_FINAL';
   return 'STATUS_SCHEDULED';
 }
 
-function statusLabel(game) {
-  if (game.status === 'STATUS_IN_PROGRESS') {
-    return game.inning ? `Live · Inning ${game.inning}` : 'Live';
-  }
-  if (game.status === 'STATUS_FINAL') return 'Final';
-  if (game.startTime) return `⏰ ${game.startTime}`;
+function statusLabel(g) {
+  if (g.status === 'STATUS_IN_PROGRESS') return g.inning ? `Live · Inning ${g.inning}` : 'Live';
+  if (g.status === 'STATUS_FINAL') return 'Final';
+  if (g.startTime) return `⏰ ${g.startTime}`;
   return 'Upcoming';
 }
 
-function isFav(team) { return favorites.has(team); }
+function isFav(t) { return favorites.has(t); }
 
-// ─────────────────────────────
-// Fetch Functions
-// ─────────────────────────────
-
-// MLB — MLB StatsAPI (official, no key, CORS-open)
+// ─── Fetch ───
 async function fetchMLB() {
   try {
-    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today()}&hydrate=linescore`;
+    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today()}&hydrate=linescore,team`;
     const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const games = [];
     for (const date of (data.dates || [])) {
       for (const g of (date.games || [])) {
-        const home = g.teams?.home;
-        const away = g.teams?.away;
-        if (!home || !away) continue;
-        const status = parseStatus(g.status);
-        const inning = g.linescore?.currentInning || g.status?.currentInning || 0;
-        const startTime = g.gameDate ? new Date(g.gameDate).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}) : '';
-        games.push({
-          league: 'MLB', id: g.gamePk,
-          homeTeam: home.team?.name || 'Home',
-          awayTeam: away.team?.name || 'Away',
-          homeScore: home.score ?? 0,
-          awayScore: away.score ?? 0,
-          status, inning, startTime
-        });
-      }
-    }
-    return games;
-  } catch(e) {
-    console.warn('MLB error:', e.message);
-    return null; // null = error, [] = no games
-  }
-}
-
-// NPB — SportsDB free tier (league id 4591)
-async function fetchNPB() {
-  try {
-    const url = 'https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4591';
-    const res = await fetch(url);
-    const data = await res.json();
-    return (data.results || []).slice(0,20).map(e => ({
-      league: 'NPB', id: e.idEvent,
-      homeTeam: e.strHomeTeam, awayTeam: e.strAwayTeam,
-      homeScore: parseInt(e.intHomeScore) || 0,
-      awayScore: parseInt(e.intAwayScore) || 0,
-      status: e.intStatus === '3' ? 'STATUS_IN_PROGRESS' : 'STATUS_FINAL',
-      inning: 9, startTime: ''
-    }));
-  } catch(e) {
-    console.warn('NPB error:', e.message);
-    return null;
-  }
-}
-
-// KBO — SportsDB (league id 4520)
-async function fetchKBO() {
-  try {
-    const url = 'https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4520';
-    const res = await fetch(url);
-    const data = await res.json();
-    return (data.results || []).slice(0,20).map(e => ({
-      league: 'KBO', id: e.idEvent,
-      homeTeam: e.strHomeTeam, awayTeam: e.strAwayTeam,
-      homeScore: parseInt(e.intHomeScore) || 0,
-      awayScore: parseInt(e.intAwayScore) || 0,
-      status: e.intStatus === '3' ? 'STATUS_IN_PROGRESS' : 'STATUS_FINAL',
-      inning: 9, startTime: ''
-    }));
-  } catch(e) {
-    console.warn('KBO error:', e.message);
-    return null;
-  }
-}
-
-// AAA — MLB StatsAPI sportId=17
-async function fetchAAA() {
-  try {
-    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=17&date=${today()}&hydrate=linescore`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const games = [];
-    for (const date of (data.dates || [])) {
-      for (const g of (date.games || [])) {
-        const home = g.teams?.home;
-        const away = g.teams?.away;
+        const home = g.teams?.home; const away = g.teams?.away;
         if (!home || !away) continue;
         const status = parseStatus(g.status);
         const inning = g.linescore?.currentInning || 0;
-        const startTime = g.gameDate ? new Date(g.gameDate).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}) : '';
+        const startTime = g.gameDate ? new Date(g.gameDate).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
         games.push({
-          league: 'AAA', id: g.gamePk,
+          league:'MLB', id:g.gamePk,
           homeTeam: home.team?.name || 'Home',
           awayTeam: away.team?.name || 'Away',
           homeScore: home.score ?? 0,
           awayScore: away.score ?? 0,
+          homeLogo: home.team?.id ? logoMLBById(home.team.id) : null,
+          awayLogo: away.team?.id ? logoMLBById(away.team.id) : null,
           status, inning, startTime
         });
       }
     }
     return games;
-  } catch(e) {
-    console.warn('AAA error:', e.message);
-    return null;
-  }
+  } catch(e) { console.warn('MLB:', e.message); return null; }
 }
 
-// LMB — no free reliable API, keep informative placeholder
+async function fetchNPB() {
+  try {
+    const res = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4591');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    return (data.results || []).slice(0,20).map(e => ({
+      league:'NPB', id:e.idEvent,
+      homeTeam: e.strHomeTeam, awayTeam: e.strAwayTeam,
+      homeScore: parseInt(e.intHomeScore) || 0,
+      awayScore: parseInt(e.intAwayScore) || 0,
+      homeLogo: e.strHomeTeamBadge || null,
+      awayLogo: e.strAwayTeamBadge || null,
+      status: e.intStatus === '3' ? 'STATUS_IN_PROGRESS' : 'STATUS_FINAL',
+      inning: 9, startTime: ''
+    }));
+  } catch(e) { console.warn('NPB:', e.message); return null; }
+}
+
+async function fetchKBO() {
+  try {
+    const res = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=4830');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    return (data.results || []).slice(0,20).map(e => ({
+      league:'KBO', id:e.idEvent,
+      homeTeam: e.strHomeTeam, awayTeam: e.strAwayTeam,
+      homeScore: parseInt(e.intHomeScore) || 0,
+      awayScore: parseInt(e.intAwayScore) || 0,
+      homeLogo: e.strHomeTeamBadge || null,
+      awayLogo: e.strAwayTeamBadge || null,
+      status: e.intStatus === '3' ? 'STATUS_IN_PROGRESS' : 'STATUS_FINAL',
+      inning: 9, startTime: ''
+    }));
+  } catch(e) { console.warn('KBO:', e.message); return null; }
+}
+
+async function fetchAAA() {
+  try {
+    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=11&date=${today()}&hydrate=linescore,team`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const games = [];
+    for (const date of (data.dates || [])) {
+      for (const g of (date.games || [])) {
+        const home = g.teams?.home; const away = g.teams?.away;
+        if (!home || !away) continue;
+        const status = parseStatus(g.status);
+        const inning = g.linescore?.currentInning || 0;
+        const startTime = g.gameDate ? new Date(g.gameDate).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
+        games.push({
+          league:'AAA', id:g.gamePk,
+          homeTeam: home.team?.name || 'Home',
+          awayTeam: away.team?.name || 'Away',
+          homeScore: home.score ?? 0,
+          awayScore: away.score ?? 0,
+          homeLogo: home.team?.id ? logoMLBById(home.team.id) : null,
+          awayLogo: away.team?.id ? logoMLBById(away.team.id) : null,
+          status, inning, startTime
+        });
+      }
+    }
+    return games;
+  } catch(e) { console.warn('AAA:', e.message); return null; }
+}
+
 async function fetchLMB() { return null; }
 
-// ─────────────────────────────
-// Render
-// ─────────────────────────────
+// ─── Render ───
+function teamLogoEl(name, url) {
+  if (url) {
+    const img = document.createElement('img');
+    img.className = 'team-logo';
+    img.src = url; img.alt = '';
+    img.onerror = function() {
+      const fb = document.createElement('div');
+      fb.className = 'team-logo-fallback';
+      fb.textContent = name.split(' ').map(w=>w[0]).join('').slice(0,3).toUpperCase();
+      this.replaceWith(fb);
+    };
+    return img;
+  }
+  const fb = document.createElement('div');
+  fb.className = 'team-logo-fallback';
+  fb.textContent = name.split(' ').map(w=>w[0]).join('').slice(0,3).toUpperCase();
+  return fb;
+}
+
 function makeCard(game) {
   const isLive = game.status === 'STATUS_IN_PROGRESS';
   const homeFav = isFav(game.homeTeam);
@@ -470,52 +449,72 @@ function makeCard(game) {
 
   const wrap = document.createElement('div');
   wrap.className = 'card-wrap';
-
   const shadow = document.createElement('div');
   shadow.className = 'card-shadow';
   wrap.appendChild(shadow);
 
   const card = document.createElement('div');
-  card.className = `card${isLive ? ' live' : ''}${hasFav ? ' fav' : ''}`;
+  card.className = `card${isLive?' live':''}${hasFav?' fav':''}`;
 
-  card.innerHTML = `
-    <div class="card-teams">
-      <div class="card-team">
-        <span class="team-name${awayFav ? ' is-fav' : ''}">${game.awayTeam}</span>
-        <span class="team-score">${game.awayScore}</span>
-      </div>
-      <div class="card-team">
-        <span class="team-name${homeFav ? ' is-fav' : ''}">${game.homeTeam}</span>
-        <span class="team-score">${game.homeScore}</span>
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="card-status">${statusLabel(game)}</span>
-      <span class="league-badge">${game.league}</span>
-    </div>
-  `;
+  const teams = document.createElement('div');
+  teams.className = 'card-teams';
+
+  // Away
+  const awayRow = document.createElement('div');
+  awayRow.className = 'card-team';
+  const awayInfo = document.createElement('div');
+  awayInfo.className = 'team-info';
+  awayInfo.appendChild(teamLogoEl(game.awayTeam, game.awayLogo));
+  const awayName = document.createElement('span');
+  awayName.className = `team-name${awayFav?' is-fav':''}`;
+  awayName.textContent = game.awayTeam;
+  awayInfo.appendChild(awayName);
+  awayRow.appendChild(awayInfo);
+  const awayScore = document.createElement('span');
+  awayScore.className = 'team-score';
+  awayScore.textContent = game.awayScore;
+  awayRow.appendChild(awayScore);
+  teams.appendChild(awayRow);
+
+  // Home
+  const homeRow = document.createElement('div');
+  homeRow.className = 'card-team';
+  const homeInfo = document.createElement('div');
+  homeInfo.className = 'team-info';
+  homeInfo.appendChild(teamLogoEl(game.homeTeam, game.homeLogo));
+  const homeName = document.createElement('span');
+  homeName.className = `team-name${homeFav?' is-fav':''}`;
+  homeName.textContent = game.homeTeam;
+  homeInfo.appendChild(homeName);
+  homeRow.appendChild(homeInfo);
+  const homeScore = document.createElement('span');
+  homeScore.className = 'team-score';
+  homeScore.textContent = game.homeScore;
+  homeRow.appendChild(homeScore);
+  teams.appendChild(homeRow);
+
+  card.appendChild(teams);
+
+  const footer = document.createElement('div');
+  footer.className = 'card-footer';
+  footer.innerHTML = `<span class="card-status">${statusLabel(game)}</span><span class="league-badge">${game.league}</span>`;
+  card.appendChild(footer);
 
   wrap.appendChild(card);
   return wrap;
 }
 
-function renderSection(id, games, error) {
+function renderSection(id, games) {
   const body = document.getElementById(`body-${id}`);
   body.innerHTML = '';
-
-  if (error) {
-    const el = document.createElement('div');
-    el.className = 'error-state';
-    el.textContent = `Could not load ${id.toUpperCase()} data. Will retry on next refresh.`;
-    body.appendChild(el);
+  if (games === null) {
+    body.innerHTML = `<div class="error-state">${id.toUpperCase()} data unavailable. Will retry.</div>`;
     return;
   }
-
   if (!games || games.length === 0) {
     body.innerHTML = '<div class="empty-state">No games scheduled today.</div>';
     return;
   }
-
   const sorted = [...games].sort((a,b) => {
     if (a.status === 'STATUS_IN_PROGRESS' && b.status !== 'STATUS_IN_PROGRESS') return -1;
     if (b.status === 'STATUS_IN_PROGRESS' && a.status !== 'STATUS_IN_PROGRESS') return 1;
@@ -523,28 +522,21 @@ function renderSection(id, games, error) {
     if (b.status === 'STATUS_SCHEDULED' && a.status === 'STATUS_FINAL') return 1;
     return 0;
   });
-
   sorted.forEach(g => body.appendChild(makeCard(g)));
 }
 
 function renderFavs() {
   const body = document.getElementById('body-favs');
   body.innerHTML = '';
-
   if (favorites.size === 0) {
     body.innerHTML = '<div class="empty-state">Open ☰ to pick your teams.</div>';
     return;
   }
-
-  const favGames = Object.values(allGames).flat().filter(g =>
-    g && (isFav(g.homeTeam) || isFav(g.awayTeam))
-  );
-
+  const favGames = Object.values(allGames).flat().filter(g => g && (isFav(g.homeTeam) || isFav(g.awayTeam)));
   if (favGames.length === 0) {
     body.innerHTML = '<div class="empty-state">None of your teams are playing today.</div>';
     return;
   }
-
   const sorted = [...favGames].sort((a,b) => {
     if (a.status === 'STATUS_IN_PROGRESS' && b.status !== 'STATUS_IN_PROGRESS') return -1;
     if (b.status === 'STATUS_IN_PROGRESS' && a.status !== 'STATUS_IN_PROGRESS') return 1;
@@ -556,27 +548,20 @@ function renderFavs() {
 function renderLive() {
   const body = document.getElementById('body-live');
   body.innerHTML = '';
-
-  const liveGames = Object.values(allGames).flat().filter(g => g && g.status === 'STATUS_IN_PROGRESS');
-
-  if (liveGames.length === 0) {
+  const live = Object.values(allGames).flat().filter(g => g && g.status === 'STATUS_IN_PROGRESS');
+  if (live.length === 0) {
     body.innerHTML = '<div class="empty-state">No games in progress right now.</div>';
     return;
   }
-  liveGames.forEach(g => body.appendChild(makeCard(g)));
+  live.forEach(g => body.appendChild(makeCard(g)));
 }
 
 function renderAll() {
   renderFavs();
   renderLive();
-  ['mlb','npb','kbo','lmb','aaa'].forEach(id => {
-    renderSection(id, allGames[id], allGames[id] === null);
-  });
+  ['mlb','npb','kbo','lmb','aaa'].forEach(id => renderSection(id, allGames[id]));
 }
 
-// ─────────────────────────────
-// Fetch All
-// ─────────────────────────────
 async function fetchAll() {
   document.getElementById('refreshBtn').textContent = '…';
   const [mlb, npb, kbo, lmb, aaa] = await Promise.all([
@@ -587,23 +572,19 @@ async function fetchAll() {
   document.getElementById('refreshBtn').textContent = '↻';
 }
 
-// ─────────────────────────────
-// Sidebar
-// ─────────────────────────────
+// ─── Sidebar ───
 function buildSidebar() {
-  const container = document.getElementById('sidebar-leagues');
-  container.innerHTML = '';
+  const c = document.getElementById('sidebar-leagues');
+  c.innerHTML = '';
   Object.entries(TEAMS).forEach(([league, teams]) => {
-    const section = document.createElement('div');
-    section.className = 'sidebar-league';
-    section.innerHTML = `<div class="sidebar-league-header">${league}</div>`;
+    const sec = document.createElement('div');
+    sec.className = 'sidebar-league';
+    sec.innerHTML = `<div class="sidebar-league-header">${league}</div>`;
     const list = document.createElement('div');
     list.className = 'team-list';
-
     teams.forEach(team => {
       const label = document.createElement('label');
-      label.className = `team-item${isFav(team) ? ' selected' : ''}`;
-
+      label.className = `team-item${isFav(team)?' selected':''}`;
       const cb = document.createElement('input');
       cb.type = 'checkbox';
       cb.checked = isFav(team);
@@ -611,124 +592,110 @@ function buildSidebar() {
         if (cb.checked) favorites.add(team);
         else favorites.delete(team);
         localStorage.setItem('bb_favs', JSON.stringify([...favorites]));
-        label.className = `team-item${isFav(team) ? ' selected' : ''}`;
+        label.className = `team-item${isFav(team)?' selected':''}`;
         renderFavs();
         renderAll();
       });
-
       label.appendChild(cb);
+      // Add logo for MLB teams
+      if (league === 'MLB') {
+        const url = logoMLB(team);
+        if (url) {
+          const img = document.createElement('img');
+          img.src = url; img.alt = '';
+          img.onerror = function() { this.style.display = 'none'; };
+          label.appendChild(img);
+        }
+      }
       label.appendChild(document.createTextNode(team));
       list.appendChild(label);
     });
-
-    section.appendChild(list);
-    container.appendChild(section);
+    sec.appendChild(list);
+    c.appendChild(sec);
   });
 }
 
-// ─────────────────────────────
-// Section Collapse
-// ─────────────────────────────
-document.querySelectorAll('.section-header').forEach(header => {
-  const sec = header.dataset.sec;
+// ─── Section Collapse ───
+document.querySelectorAll('.section-header-wrap').forEach(wrap => {
+  const sec = wrap.dataset.sec;
   const body = document.getElementById(`body-${sec}`);
-  const chevron = header.querySelector('.chevron');
-
-  if (collapsed.has(sec)) {
-    body.classList.add('closed');
-    chevron.classList.replace('down','up');
-  }
-
-  header.addEventListener('click', () => {
+  const chevron = wrap.querySelector('.chevron');
+  if (collapsed.has(sec)) { body.classList.add('closed'); chevron.classList.add('up'); }
+  wrap.addEventListener('click', () => {
     const isOpen = !body.classList.contains('closed');
     body.classList.toggle('closed', isOpen);
-    chevron.classList.toggle('down', !isOpen);
     chevron.classList.toggle('up', isOpen);
     if (isOpen) collapsed.add(sec); else collapsed.delete(sec);
     localStorage.setItem('bb_collapsed', JSON.stringify([...collapsed]));
   });
 });
 
-// ─────────────────────────────
-// Sidebar Controls
-// ─────────────────────────────
+// ─── Sidebar Controls ───
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
-
 document.getElementById('menuBtn').addEventListener('click', () => {
-  sidebar.classList.add('open');
-  overlay.classList.add('open');
+  sidebar.classList.add('open'); overlay.classList.add('open');
 });
 document.getElementById('closeBtn').addEventListener('click', () => {
-  sidebar.classList.remove('open');
-  overlay.classList.remove('open');
+  sidebar.classList.remove('open'); overlay.classList.remove('open');
 });
 overlay.addEventListener('click', () => {
-  sidebar.classList.remove('open');
-  overlay.classList.remove('open');
+  sidebar.classList.remove('open'); overlay.classList.remove('open');
 });
-
 document.getElementById('refreshBtn').addEventListener('click', fetchAll);
 
-// ─────────────────────────────
-// Memphis Shapes
-// ─────────────────────────────
+// ─── Memphis Shapes ───
 function initShapes() {
   const layer = document.getElementById('shapes-layer');
   const defs = [
-    { type:'circle', cx:18, cy:120, r:18, fill:'#1a6ef5' },
-    { type:'rect',   x:55,  y:260, w:22, h:22, rot:20, stroke:'#e8234a', sw:4 },
-    { type:'circle', cx:22, cy:420, r:12, fill:'none', stroke:'#00a86b', sw:5 },
-    { type:'wave',   x:30,  y:580, stroke:'#f5620a', sw:4 },
-    { type:'poly',   x:52,  y:740, fill:'#8b1af5' },
-    { type:'circle', cx:62, cy:200, r:9,  fill:'#f5620a' },
-    { type:'rect',   x:42,  y:490, w:18, h:18, rot:-18, stroke:'#8b1af5', sw:3 },
-    { type:'circle', cx:20, cy:880, r:14, fill:'#1a6ef5', opacity:0.6 },
-    { type:'wave',   x:38,  y:1050, stroke:'#e8234a', sw:3 },
-    { type:'circle', cx:65, cy:650, r:10, fill:'none', stroke:'#f5a623', sw:4 },
+    {type:'circle',cx:18,cy:120,r:18,fill:'#1a6ef5'},
+    {type:'rect',x:55,y:260,w:22,h:22,rot:20,stroke:'#e8234a',sw:4},
+    {type:'circle',cx:22,cy:420,r:12,fill:'none',stroke:'#00a86b',sw:5},
+    {type:'wave',x:30,y:580,stroke:'#f5620a',sw:4},
+    {type:'poly',x:52,y:740,fill:'#8b1af5'},
+    {type:'circle',cx:62,cy:200,r:9,fill:'#f5620a'},
+    {type:'rect',x:42,y:490,w:18,h:18,rot:-18,stroke:'#8b1af5',sw:3},
+    {type:'circle',cx:20,cy:880,r:14,fill:'#1a6ef5',opacity:.6},
+    {type:'wave',x:38,y:1050,stroke:'#e8234a',sw:3},
+    {type:'circle',cx:65,cy:650,r:10,fill:'none',stroke:'#f5a623',sw:4},
   ];
-
-  defs.forEach((d, i) => {
+  defs.forEach((d,i) => {
     const ns = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(ns, 'svg');
-    svg.setAttribute('class', 'ms');
-    const rot = (i * 13 + 7) % 35;
-    svg.style.cssText = `--r:${rot}deg; top:${d.cy||d.y}px; left:${d.cx||d.x}px;`;
+    const svg = document.createElementNS(ns,'svg');
+    svg.setAttribute('class','ms');
+    svg.style.cssText = `--r:${(i*13+7)%35}deg;top:${d.cy||d.y}px;left:${d.cx||d.x}px`;
     svg.setAttribute('viewBox','0 0 100 100');
     svg.setAttribute('width','64'); svg.setAttribute('height','64');
-
     let el;
     if (d.type === 'circle') {
-      el = document.createElementNS(ns, 'circle');
-      el.setAttribute('cx','50'); el.setAttribute('cy','50'); el.setAttribute('r', d.r);
-      el.setAttribute('fill', d.fill||'none');
-      if (d.stroke) { el.setAttribute('stroke', d.stroke); el.setAttribute('stroke-width', d.sw||4); }
+      el = document.createElementNS(ns,'circle');
+      el.setAttribute('cx','50'); el.setAttribute('cy','50'); el.setAttribute('r',d.r);
+      el.setAttribute('fill',d.fill||'none');
+      if (d.stroke) { el.setAttribute('stroke',d.stroke); el.setAttribute('stroke-width',d.sw||4); }
     } else if (d.type === 'rect') {
-      el = document.createElementNS(ns, 'rect');
+      el = document.createElementNS(ns,'rect');
       el.setAttribute('x','39'); el.setAttribute('y','39');
-      el.setAttribute('width', d.w); el.setAttribute('height', d.h);
-      el.setAttribute('fill','none');
-      el.setAttribute('stroke', d.stroke||'#000'); el.setAttribute('stroke-width', d.sw||4);
+      el.setAttribute('width',d.w); el.setAttribute('height',d.h);
+      el.setAttribute('fill','none'); el.setAttribute('stroke',d.stroke);
+      el.setAttribute('stroke-width',d.sw||4);
       el.setAttribute('transform',`rotate(${d.rot||0} 50 50)`);
     } else if (d.type === 'wave') {
-      el = document.createElementNS(ns, 'path');
+      el = document.createElementNS(ns,'path');
       el.setAttribute('d','M20,50 Q35,30 50,50 T80,50');
-      el.setAttribute('fill','none');
-      el.setAttribute('stroke', d.stroke||'#000'); el.setAttribute('stroke-width', d.sw||4);
-      el.setAttribute('stroke-linecap','round');
+      el.setAttribute('fill','none'); el.setAttribute('stroke',d.stroke);
+      el.setAttribute('stroke-width',d.sw||4); el.setAttribute('stroke-linecap','round');
     } else if (d.type === 'poly') {
-      el = document.createElementNS(ns, 'polygon');
+      el = document.createElementNS(ns,'polygon');
       el.setAttribute('points','50,15 80,80 20,80');
-      el.setAttribute('fill', d.fill||'none');
+      el.setAttribute('fill',d.fill);
     }
     if (el) { svg.appendChild(el); layer.appendChild(svg); }
   });
-
   const shapes = document.querySelectorAll('.ms');
   const data = Array.from(shapes).map((el,i) => ({
-    el, triggered: false,
-    threshold: Math.max(0, (parseFloat(el.style.top)||0) - window.innerHeight * 0.8),
-    delay: (i % 4) * 80
+    el, triggered:false,
+    threshold: Math.max(0,(parseFloat(el.style.top)||0)-window.innerHeight*0.8),
+    delay:(i%4)*80
   }));
   function check() {
     const sy = window.scrollY;
@@ -740,12 +707,9 @@ function initShapes() {
     });
   }
   check();
-  window.addEventListener('scroll', check, { passive: true });
+  window.addEventListener('scroll', check, {passive:true});
 }
 
-// ─────────────────────────────
-// Init
-// ─────────────────────────────
 initShapes();
 buildSidebar();
 fetchAll();
