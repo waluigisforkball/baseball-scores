@@ -51,16 +51,14 @@
 
     .main{position:relative;z-index:10;padding:20px;padding-bottom:48px;max-width:600px;margin:0 auto}
 
-    /* Debug panel */
-    .debug-panel{
-      background:#15120a;color:#1a6ef5;border:2px solid #1a6ef5;
-      border-radius:11px;padding:12px;margin-bottom:18px;
-      font-family:monospace;font-size:11px;line-height:1.6;
+    /* Date bar */
+    .date-bar{
+      background:#fffef9;border:2px solid #ddd5c5;border-left:5px solid #1a6ef5;
+      border-radius:10px;padding:10px 14px;margin-bottom:18px;
+      display:flex;justify-content:space-between;align-items:center;
+      font-size:13px;font-weight:700;color:#5a5040;
     }
-    .debug-panel strong{color:#f5a623}
-    .debug-line{margin-bottom:4px}
-    .debug-line.ok{color:#00c97a}
-    .debug-line.fail{color:#e8234a}
+    .date-bar strong{color:#15120a;font-weight:900}
 
     .section{margin-bottom:22px}
     .section-header-wrap{position:relative;margin-bottom:14px;cursor:pointer;user-select:none}
@@ -85,22 +83,22 @@
     .card.fav{border-left-color:#f5a623}
     .card.live.fav{border-left-color:#e8234a}
 
-    .card-teams{margin-bottom:8px}
-    .card-team{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:10px}
-    .team-info{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
-    .team-logo{width:24px;height:24px;flex-shrink:0;object-fit:contain}
-    .team-logo-fallback{width:24px;height:24px;flex-shrink:0;border-radius:50%;
+    .card-teams{margin-bottom:10px}
+    .card-team{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px}
+    .team-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+    .team-logo{width:32px;height:32px;flex-shrink:0;object-fit:contain}
+    .team-logo-fallback{width:32px;height:32px;flex-shrink:0;border-radius:50%;
       background:#ddd5c5;display:flex;align-items:center;justify-content:center;
-      font-size:10px;font-weight:900;color:#15120a}
-    .team-name{font-weight:700;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .team-name.is-fav::after{content:' ⭐';font-size:10px}
-    .team-score{font-weight:900;font-size:18px;color:#1a6ef5;flex-shrink:0}
+      font-size:11px;font-weight:900;color:#15120a}
+    .team-name{font-weight:800;font-size:16px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .team-name.is-fav::after{content:' ⭐';font-size:12px}
+    .team-score{font-weight:900;font-size:24px;color:#1a6ef5;flex-shrink:0;min-width:32px;text-align:right}
     .card.live .team-score{color:#e8234a}
 
-    .card-footer{display:flex;justify-content:space-between;align-items:center}
-    .card-status{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#5a5040}
+    .card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1.5px solid #f0eadc}
+    .card-status{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#5a5040}
     .card.live .card-status{color:#e8234a}
-    .league-badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;
+    .league-badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;
       background:#dce9ff;color:#1a6ef5;text-transform:uppercase}
 
     .empty-state{text-align:center;padding:20px;color:#a09080;font-size:13px}
@@ -132,7 +130,6 @@
   <div class="header-content">
     <div class="logo">BB <span>Scores</span></div>
     <div class="header-controls">
-      <button class="icon-btn" id="debugBtn" title="Debug">🐛</button>
       <button class="icon-btn" id="menuBtn">☰</button>
       <button class="icon-btn" id="refreshBtn">↻</button>
     </div>
@@ -140,10 +137,7 @@
 </div>
 
 <div class="main">
-  <div class="debug-panel" id="debugPanel" style="display:none">
-    <strong>API Debug Log:</strong>
-    <div id="debugContent"></div>
-  </div>
+  <div class="date-bar" id="dateBar"></div>
 
   <div class="section" id="sec-favs">
     <div class="section-header-wrap" data-sec="favs">
@@ -218,22 +212,16 @@
 let allGames = { mlb:[], npb:[], kbo:[], aaa:[] };
 let favorites = new Set(JSON.parse(localStorage.getItem('bb_favs') || '[]'));
 let collapsed = new Set(JSON.parse(localStorage.getItem('bb_collapsed') || '[]'));
-let debugLog = [];
 
-function logDebug(league, status, msg) {
-  const ts = new Date().toLocaleTimeString();
-  debugLog.push({ts, league, status, msg});
-  if (debugLog.length > 20) debugLog.shift();
-  renderDebug();
+function updateDateBar() {
+  const bar = document.getElementById('dateBar');
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+  bar.innerHTML = `<span>📅 <strong>${todayDisplay()}</strong></span><span>Updated ${time}</span>`;
 }
 
-function renderDebug() {
-  const c = document.getElementById('debugContent');
-  if (!c) return;
-  c.innerHTML = debugLog.map(d =>
-    `<div class="debug-line ${d.status}">[${d.ts}] ${d.league}: ${d.msg}</div>`
-  ).join('');
-}
+function logDebug() {} // no-op
+function renderDebug() {} // no-op
 
 const MLB_TEAMS = {
   'Arizona Diamondbacks':{id:109,abbr:'ari'},'Atlanta Braves':{id:144,abbr:'atl'},
@@ -293,10 +281,15 @@ function parseStatus(raw) {
 }
 
 function statusLabel(g) {
-  if (g.status === 'STATUS_IN_PROGRESS') return g.inning ? `Live · Inning ${g.inning}` : 'Live';
+  if (g.status === 'STATUS_IN_PROGRESS') return g.inning ? `🔴 Live · Inning ${g.inning}` : '🔴 Live';
   if (g.status === 'STATUS_FINAL') return 'Final';
-  if (g.startTime) return `⏰ ${g.startTime}`;
+  if (g.startTime) return `Starts ${g.startTime}`;
   return 'Upcoming';
+}
+
+function todayDisplay() {
+  const d = new Date();
+  return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
 }
 
 function isFav(t) { return favorites.has(t); }
@@ -591,13 +584,12 @@ function renderAll() {
 
 async function fetchAll() {
   document.getElementById('refreshBtn').textContent = '…';
-  debugLog = [];
-  logDebug('System', 'ok', `Starting fetch at ${today()}`);
   const [mlb, npb, kbo, aaa] = await Promise.all([
     fetchMLB(), fetchNPB(), fetchKBO(), fetchAAA()
   ]);
   allGames = { mlb, npb, kbo, aaa };
   renderAll();
+  updateDateBar();
   document.getElementById('refreshBtn').textContent = '↻';
 }
 
@@ -668,10 +660,6 @@ overlay.addEventListener('click', () => {
   sidebar.classList.remove('open'); overlay.classList.remove('open');
 });
 document.getElementById('refreshBtn').addEventListener('click', fetchAll);
-document.getElementById('debugBtn').addEventListener('click', () => {
-  const p = document.getElementById('debugPanel');
-  p.style.display = p.style.display === 'none' ? 'block' : 'none';
-});
 
 function initShapes() {
   const layer = document.getElementById('shapes-layer');
